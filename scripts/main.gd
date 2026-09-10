@@ -41,7 +41,7 @@ func _ready() -> void:
 	player.add_child(pl_mesh)
 	pl_mesh.mesh = QuadMesh.new()
 	pl_mesh.mesh.size = Vector2(12, 24)
-	pl_mesh.modulate = Color(0.2, 0.2, 0.9)
+	player.z_index = 128
 
 
 	for i in range(5):
@@ -49,7 +49,7 @@ func _ready() -> void:
 		rival_follower.loop = true
 		path.add_child(rival_follower)
 		rival_followers.append(rival_follower)
-		rival_follower.v_offset = randf_range(-16.0, 16.0)
+		rival_follower.v_offset = randf_range(-32.0, 32.0)
 
 		var rival = Node2D.new()
 		add_child(rival)
@@ -59,7 +59,7 @@ func _ready() -> void:
 		rival.add_child(rival_mesh)
 		rival_mesh.mesh = QuadMesh.new()
 		rival_mesh.mesh.size = Vector2(12, 24)
-		rival_mesh.modulate = Color.from_hsv(i / 6.0, 1.0, 1.0)
+		rival_mesh.modulate = Color.from_hsv(i / 6.0, 0.8, 0.7)
 
 		rival_follower.progress_ratio = 0
 		rival.position = rival_follower.position
@@ -69,13 +69,13 @@ func _ready() -> void:
 		rival_follower.add_child(follower_mesh)
 		follower_mesh.mesh = QuadMesh.new()
 		follower_mesh.mesh.size = Vector2(12, 12)
-		follower_mesh.modulate = Color.from_hsv(i / 5.0, 0.5, 1.0)
+		follower_mesh.modulate = Color.from_hsv(i / 6.0, 0.6, 0.5)
 		follower_mesh.z_index = 64
 
 
 	var baked_points = path.curve.get_baked_points()
 	var line_road = Line2D.new()
-	line_road.width = 32
+	line_road.width = 64
 	line_road.default_color = Color(0.2, 0.2, 0.2)
 	line_road.points = baked_points
 	add_child(line_road)
@@ -93,10 +93,10 @@ func _process(delta: float) -> void:
 	player.position += direction
 
 	var closest_pt = path.curve.get_closest_point(player.position)
-	if (player.position - closest_pt).length() > 16:
-		player.modulate = Color(0.9, 0.2, 0.2)
+	if (player.position - closest_pt).length() > 32:
+		player.modulate = Color.from_hsv(0.9, 1.0, 0.5)
 	else:
-		player.modulate = Color(0.2, 0.2, 0.9)
+		player.modulate = Color.from_hsv(0.9, 1.0, 1.0)
 
 	for i in range(rival_followers.size()):
 		var follower = rival_followers[i]
