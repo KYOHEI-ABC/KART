@@ -13,7 +13,7 @@ var rivals_3D: Array[Node3D] = []
 
 func _ready() -> void:
 	var camera = Camera2D.new()
-	add_child(camera)
+	# add_child(camera)
 	path = Path2D.new()
 	add_child(path)
 	path.curve = Curve2D.new()
@@ -90,7 +90,7 @@ func _ready() -> void:
 	add_child(player_3D)
 	var player_mesh_3d = MeshInstance3D.new()
 	player_mesh_3d.mesh = BoxMesh.new()
-	player_mesh_3d.mesh.size = Vector3(1, 1, 2)
+	player_mesh_3d.mesh.size = Vector3(12, 12, 24)
 	player_3D.add_child(player_mesh_3d)
 	player_mesh_3d.material_override = StandardMaterial3D.new()
 	player_mesh_3d.material_override.albedo_color = Color.from_hsv(0.9, 1.0, 1.0)
@@ -110,11 +110,50 @@ func _ready() -> void:
 
 		var rival_mesh_3D = MeshInstance3D.new()
 		rival_mesh_3D.mesh = BoxMesh.new()
-		rival_mesh_3D.mesh.size = Vector3(1, 1, 2)
+		rival_mesh_3D.mesh.size = Vector3(12, 12, 24)
 		rival_3D.add_child(rival_mesh_3D)
 		rival_mesh_3D.material_override = StandardMaterial3D.new()
 		rival_mesh_3D.material_override.albedo_color = Color.from_hsv(i / 6.0, 1.0, 1.0)
 
+
+# --- 3D用ライン（道路メッシュ）の生成 ---
+	var mesh_instance_3d = MeshInstance3D.new()
+	var st = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
+
+	# 道路の幅を設定 (3D空間でのサイズ)
+	var road_width_3d: float = 64.0
+	var half_w = road_width_3d * 0.5
+
+	for i in range(baked_points.size()):
+		var pt2d = baked_points[i]
+		var current = Vector3(pt2d.x, 0, pt2d.y)
+
+		# 進行方向（接線）を計算
+		var next_pt = baked_points[(i + 1) % baked_points.size()]
+		var prev_pt = baked_points[(i - 1 + baked_points.size()) % baked_points.size()]
+		var dir2d = (next_pt - prev_pt).normalized()
+
+		# 進行方向に対して垂直なベクトル（X-Z平面上の法線）
+		var side = Vector3(-dir2d.y, 0, dir2d.x)
+
+		# 左右の頂点を追加
+		st.set_color(Color(0.2, 0.2, 0.2)) # 2Dと同じ道路色
+		st.add_vertex(current - side * half_w)
+		st.add_vertex(current + side * half_w)
+
+	var array_mesh = st.commit()
+	mesh_instance_3d.mesh = array_mesh
+
+	# 両面描画用のマテリアルを設定（地面に埋もれないよう少しYを下げて配置）
+	var road_mat = StandardMaterial3D.new()
+	road_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	road_mat.vertex_color_use_as_albedo = true
+	mesh_instance_3d.material_override = road_mat
+	mesh_instance_3d.position.y = -0.01
+
+	add_child(mesh_instance_3d)
+# --- 3D用ライン（道路メッシュ）の生成 ---
 
 func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_A):
@@ -169,8 +208,8 @@ func _process(delta: float) -> void:
 	player_3D.rotation = Vector3(0, -player.rotation, 0)
 
 
-	var distance = 16.0
-	var height = 8.0
+	var distance = 64.0
+	var height = 32.0
 	var target_position = player_3D.position + player_3D.transform.basis.z * distance + Vector3(0, height, 0)
 	camera_3D.position = camera_3D.position.lerp(target_position, 10.0 * delta)
 	camera_3D.look_at(player_3D.position + Vector3(0, 1.0, 0), Vector3.UP)
