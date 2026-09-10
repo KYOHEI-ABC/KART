@@ -12,8 +12,8 @@ var player_3D: Node3D
 var rivals_3D: Array[Node3D] = []
 
 func _ready() -> void:
-	# var camera = Camera2D.new()
-	# add_child(camera)
+	var camera = Camera2D.new()
+	add_child(camera)
 	path = Path2D.new()
 	add_child(path)
 	path.curve = Curve2D.new()
@@ -169,8 +169,8 @@ func _process(delta: float) -> void:
 	player_3D.rotation = Vector3(0, -player.rotation, 0)
 
 
-	var distance = 8.0
-	var height = 3.0
+	var distance = 16.0
+	var height = 8.0
 	var target_position = player_3D.position + player_3D.transform.basis.z * distance + Vector3(0, height, 0)
 	camera_3D.position = camera_3D.position.lerp(target_position, 10.0 * delta)
 	camera_3D.look_at(player_3D.position + Vector3(0, 1.0, 0), Vector3.UP)
