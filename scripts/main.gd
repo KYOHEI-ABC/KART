@@ -16,16 +16,24 @@ func _ready() -> void:
 	path.curve = Curve2D.new()
 
 	var points: Array[Vector2] = [
-		Vector2(0, 0),
+		Vector2(55, 0),
 		Vector2(0, -200),
 		Vector2(-200, -200),
+		Vector2(-255, -0),
 		Vector2(-200, 200),
-		Vector2(100, 200),
+		Vector2(0, 200),
 	]
 
 	for point in points:
 		path.curve.add_point(point)
 	path.curve.add_point(points[0])
+
+	var c = 55
+	set_point_in_out(path.curve, 1, Vector2(c, c))
+	set_point_in_out(path.curve, 2, Vector2(c, -c))
+	set_point_in_out(path.curve, 4, Vector2(-c, -c))
+	set_point_in_out(path.curve, 5, Vector2(-c, c))
+
 
 	player = Node2D.new()
 	add_child(player)
@@ -41,7 +49,7 @@ func _ready() -> void:
 		rival_follower.loop = true
 		path.add_child(rival_follower)
 		rival_followers.append(rival_follower)
-
+		rival_follower.v_offset = randf_range(-8.0, 8.0)
 
 		var rival = Node2D.new()
 		add_child(rival)
@@ -64,9 +72,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_A):
-		player.rotation -= 0.1
+		player.rotation -= 0.05
 	if Input.is_key_pressed(KEY_D):
-		player.rotation += 0.1
+		player.rotation += 0.05
 	var direction = Vector2.UP.rotated(player.rotation)
 	player.position += direction
 
@@ -80,8 +88,13 @@ func _process(delta: float) -> void:
 		var follower = rival_followers[i]
 		var rival = rivals[i]
 
-		follower.progress += 0.5 + randf()
+		follower.progress += randf_range(0.8, 1.2)
 
 		var rival_direction = follower.position - rival.position
 		rival.position = follower.position
 		rival.rotation = rival_direction.angle() + PI / 2
+
+
+func set_point_in_out(curve: Curve2D, index: int, point: Vector2):
+	curve.set_point_in(index, point)
+	curve.set_point_out(index, -point)
