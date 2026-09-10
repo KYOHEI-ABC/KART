@@ -92,6 +92,8 @@ func _ready() -> void:
 	player_mesh_3d.mesh = BoxMesh.new()
 	player_mesh_3d.mesh.size = Vector3(1, 1, 2)
 	player_3D.add_child(player_mesh_3d)
+	player_mesh_3d.material_override = StandardMaterial3D.new()
+	player_mesh_3d.material_override.albedo_color = Color.from_hsv(0.9, 1.0, 1.0)
 
 	camera_3D = Camera3D.new()
 	add_child(camera_3D)
@@ -110,6 +112,8 @@ func _ready() -> void:
 		rival_mesh_3D.mesh = BoxMesh.new()
 		rival_mesh_3D.mesh.size = Vector3(1, 1, 2)
 		rival_3D.add_child(rival_mesh_3D)
+		rival_mesh_3D.material_override = StandardMaterial3D.new()
+		rival_mesh_3D.material_override.albedo_color = Color.from_hsv(i / 6.0, 1.0, 1.0)
 
 
 func _process(delta: float) -> void:
