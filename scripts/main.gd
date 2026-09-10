@@ -61,6 +61,18 @@ func _ready() -> void:
 		rival_mesh.mesh.size = Vector2(12, 24)
 		rival_mesh.modulate = Color.from_hsv(i / 3.0, 1.0, 1.0)
 
+		rival_follower.progress_ratio = 0
+		rival.position = rival_follower.position
+		rival_follower.progress_ratio = 0.03
+
+		var follower_mesh = MeshInstance2D.new()
+		rival_follower.add_child(follower_mesh)
+		follower_mesh.mesh = QuadMesh.new()
+		follower_mesh.mesh.size = Vector2(12, 12)
+		follower_mesh.modulate = Color.from_hsv(i / 3.0, 0.5, 1.0)
+		follower_mesh.z_index = 64
+
+
 	var baked_points = path.curve.get_baked_points()
 	var line_road = Line2D.new()
 	line_road.width = 32
@@ -68,6 +80,8 @@ func _ready() -> void:
 	line_road.points = baked_points
 	add_child(line_road)
 	line_road.z_index = -1
+
+	player.position = rivals[0].position
 
 
 func _process(delta: float) -> void:
@@ -88,11 +102,16 @@ func _process(delta: float) -> void:
 		var follower = rival_followers[i]
 		var rival = rivals[i]
 
-		follower.progress += randf_range(0.8, 1.2)
+		var distance = (rival.position - follower.position).length()
 
-		var rival_direction = follower.position - rival.position
-		rival.position = follower.position
-		rival.rotation = rival_direction.angle() + PI / 2
+		if distance < 16:
+			follower.progress_ratio += 0.01
+		else:
+			pass
+
+		var diff = follower.position - rival.position
+		rival.position += diff.normalized()
+		rival.rotation = diff.angle() + PI / 2
 
 
 func set_point_in_out(curve: Curve2D, index: int, point: Vector2):
