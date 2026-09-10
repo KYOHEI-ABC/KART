@@ -118,6 +118,20 @@ func _process(delta: float) -> void:
 			rival.rotation -= 0.05
 		rival.position += Vector2.UP.rotated(rival.rotation) * randf_range(0.8, 1.1)
 
+	for rival in rivals:
+		var diff = player.position - rival.position
+		if diff.length() < 16:
+			player.position += diff.normalized()
+			rival.position -= diff.normalized()
+
+	for rival in rivals:
+		for rival2 in rivals:
+			if rival == rival2:
+				continue
+			var diff = rival.position - rival2.position
+			if diff.length() < 16:
+				rival.position += diff.normalized()
+				rival2.position -= diff.normalized()
 
 func set_point_in_out(curve: Curve2D, index: int, point: Vector2):
 	curve.set_point_in(index, point)
