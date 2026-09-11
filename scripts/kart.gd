@@ -23,7 +23,7 @@ func check_course_out() -> void:
 	var mat = mesh_3d.material_override as StandardMaterial3D
 	if (self.position - closest_pt).length() > 64:
 		mat.albedo_color = Color.from_hsv(index / 6.0, 1.0, 0.5)
-		power *= 0.97
+		power = power.lerp(Vector3.ZERO, 0.01)
 	else:
 		mat.albedo_color = Color.from_hsv(index / 6.0, 1.0, 1.0)
 
@@ -53,16 +53,15 @@ func _init(index: int, path: Path3D):
 	follower = PathFollow3D.new()
 	path.add_child(follower)
 	follower.loop = true
-	follower.h_offset = randf_range(-64.0, 64.0)
+	follower.h_offset = randf_range(-64.0 * 0.9, 64.0 * 0.9)
 	follower.progress_ratio = 0.0
 	self.position = follower.position
 	follower.progress_ratio = 0.03
 
 
 func bot() -> void:
-	var distance = self.position.distance_to(follower.position)
-	if distance < 16.0:
-		follower.progress_ratio += 0.01
+	var current_offset = path.curve.get_closest_offset(position)
+	follower.progress = current_offset + path.curve.get_baked_length() * 0.01
 
 	var target_direction = follower.position - self.position
 	if target_direction.length() > 0.0:
@@ -77,18 +76,17 @@ func move_forward() -> void:
 
 	self.position += power
 
-	print(power.length())
 	power *= 0.99
 
 
 func rotate_left(amount: float = 1.0) -> void:
 	self.rotation_degrees.y += amount
-	power *= 0.99
+	power = power.lerp(Vector3.ZERO, 0.03)
 
 
 func rotate_right(amount: float = 1.0) -> void:
 	self.rotation_degrees.y -= amount
-	power *= 0.99
+	power = power.lerp(Vector3.ZERO, 0.03)
 
 func rotate_toward_direction(target_direction: Vector3, step: float = 1.0) -> void:
 	if target_direction.length() == 0.0:
