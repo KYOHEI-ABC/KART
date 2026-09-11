@@ -28,6 +28,37 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 	mesh_instance.material_override.albedo_color = color
 	return mesh_instance
 
+static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
+	var mesh_instance_3d = MeshInstance3D.new()
+	var st = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
+
+	var road_width_3d: float = 128.0
+	var half_w = road_width_3d * 0.5
+	var baked_points = curve.get_baked_points()
+
+	for i in range(baked_points.size()):
+		var current = baked_points[i]
+		var next_pt = baked_points[(i + 1) % baked_points.size()]
+		var prev_pt = baked_points[(i - 1 + baked_points.size()) % baked_points.size()]
+		var dir = (next_pt - prev_pt).normalized()
+		var side = dir.cross(Vector3.UP).normalized()
+
+		st.set_color(Color(0.2, 0.2, 0.2))
+		st.add_vertex(current - side * half_w)
+		st.add_vertex(current + side * half_w)
+
+	var array_mesh = st.commit()
+	mesh_instance_3d.mesh = array_mesh
+
+	var road_mat = StandardMaterial3D.new()
+	road_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	road_mat.vertex_color_use_as_albedo = true
+	mesh_instance_3d.material_override = road_mat
+	mesh_instance_3d.position.y = -0.01
+
+	return mesh_instance_3d
+
 func _ready() -> void:
 	camera = Camera3D.new()
 	add_child(camera)
@@ -71,40 +102,7 @@ func _ready() -> void:
 		actors.append(rival)
 
 	path.curve.bake_interval = 30
-	var baked_points = path.curve.get_baked_points()
-
-
-	var mesh_instance_3d = MeshInstance3D.new()
-	var st = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
-
-	var road_width_3d: float = 128.0
-	var half_w = road_width_3d * 0.5
-
-	for i in range(baked_points.size()):
-		var current = baked_points[i]
-
-		var next_pt = baked_points[(i + 1) % baked_points.size()]
-		var prev_pt = baked_points[(i - 1 + baked_points.size()) % baked_points.size()]
-		var dir = (next_pt - prev_pt).normalized()
-
-		var side = dir.cross(Vector3.UP).normalized()
-
-		# 左右の頂点を追加
-		st.set_color(Color(0.2, 0.2, 0.2)) # 2Dと同じ道路色
-		st.add_vertex(current - side * half_w)
-		st.add_vertex(current + side * half_w)
-
-	var array_mesh = st.commit()
-	mesh_instance_3d.mesh = array_mesh
-
-	# 両面描画用のマテリアルを設定（地面に埋もれないよう少しYを下げて配置）
-	var road_mat = StandardMaterial3D.new()
-	road_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	road_mat.vertex_color_use_as_albedo = true
-	mesh_instance_3d.material_override = road_mat
-	mesh_instance_3d.position.y = -0.01
-
+	var mesh_instance_3d = Main.create_road_mesh(path.curve)
 	add_child(mesh_instance_3d)
 
 func _process(delta: float) -> void:
