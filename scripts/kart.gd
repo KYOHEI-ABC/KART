@@ -65,11 +65,11 @@ func bot() -> void:
 	if target_direction.length() > 0.0:
 		self.rotate_toward_direction(target_direction, 1.0)
 
-	self.move_forward(randf_range(0.8, 1.1))
+	self.move_forward()
 
-func move_forward(speed: float = 1.0) -> void:
+func move_forward() -> void:
 	var forward = - self.transform.basis.z
-	self.position += forward * speed
+	self.position += forward
 
 func rotate_left(amount: float = 1.0) -> void:
 	self.rotation_degrees.y += amount

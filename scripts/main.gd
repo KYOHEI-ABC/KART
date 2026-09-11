@@ -83,7 +83,7 @@ func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_D):
 		karts[0].rotate_right(1.0)
 
-	karts[0].move_forward(1.0)
+	karts[0].move_forward()
 
 	for kart in karts:
 		kart.check_course_out()
