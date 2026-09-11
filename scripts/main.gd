@@ -1,13 +1,9 @@
 class_name Main
 extends Node
 
-
-var path: Path3D
-
 var camera: Camera3D
 
 var karts: Array[Kart] = []
-
 
 static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 	var mesh_instance_3d = MeshInstance3D.new()
@@ -44,10 +40,8 @@ func _ready() -> void:
 	camera = Camera3D.new()
 	add_child(camera)
 
-	karts.append(Kart.new(0, null))
-	add_child(karts[0])
 
-	path = Path3D.new()
+	var path = Path3D.new()
 	add_child(path)
 	path.curve = Curve3D.new()
 
@@ -59,6 +53,9 @@ func _ready() -> void:
 		Vector3(-500, 0, 500),
 		Vector3(0, 0, 500),
 	]
+
+	karts.append(Kart.new(0, path))
+	add_child(karts[0])
 
 	karts[0].position = points[0]
 
@@ -89,7 +86,7 @@ func _process(delta: float) -> void:
 	karts[0].move_forward(1.0)
 
 	for kart in karts:
-		kart.update_track_color(path.curve)
+		kart.update_track_color()
 
 	for i in range(1, karts.size()):
 		karts[i].bot()

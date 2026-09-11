@@ -3,6 +3,7 @@ extends Node3D
 
 var index: int
 var follower: PathFollow3D
+var path: Path3D
 
 static func create_box_mesh(color: Color) -> MeshInstance3D:
 	var mesh_instance = MeshInstance3D.new()
@@ -13,8 +14,8 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 	mesh_instance.material_override.albedo_color = color
 	return mesh_instance
 
-func update_track_color(curve: Curve3D) -> void:
-	var closest_pt = curve.get_closest_point(self.position)
+func update_track_color() -> void:
+	var closest_pt = path.curve.get_closest_point(self.position)
 	closest_pt.y = 0.0
 	var mesh_3d = self.get_child(0) as MeshInstance3D
 	var mat = mesh_3d.material_override as StandardMaterial3D
@@ -41,6 +42,7 @@ func resolve_collision(others: Array[Kart]) -> void:
 
 func _init(index: int, path: Path3D):
 	self.index = index
+	self.path = path
 	add_child(create_box_mesh(Color.from_hsv(index / 6.0, 1.0, 1.0)))
 
 	if index == 0:
