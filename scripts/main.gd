@@ -86,7 +86,7 @@ func _process(delta: float) -> void:
 	karts[0].move_forward(1.0)
 
 	for kart in karts:
-		kart.update_track_color()
+		kart.check_course_out()
 
 	for i in range(1, karts.size()):
 		karts[i].bot()

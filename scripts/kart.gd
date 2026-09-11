@@ -14,7 +14,7 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 	mesh_instance.material_override.albedo_color = color
 	return mesh_instance
 
-func update_track_color() -> void:
+func check_course_out() -> void:
 	var closest_pt = path.curve.get_closest_point(self.position)
 	closest_pt.y = 0.0
 	var mesh_3d = self.get_child(0) as MeshInstance3D
