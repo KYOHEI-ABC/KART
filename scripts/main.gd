@@ -1,12 +1,12 @@
 class_name Main
 extends Node
 
+
 var path: Path3D
 
 var camera: Camera3D
 var player: Node3D
-var rivals: Array[Node3D] = []
-var rival_followers: Array[PathFollow3D] = []
+var rivals: Array = []
 
 
 func _ready() -> void:
@@ -50,27 +50,10 @@ func _ready() -> void:
 
 
 	for i in range(5):
-		var rival = Node3D.new()
+		var rival = Rival.new()
 		add_child(rival)
+		rival.setup(path, i / 6.0)
 		rivals.append(rival)
-
-		var rival_mesh_3D = MeshInstance3D.new()
-		rival_mesh_3D.mesh = BoxMesh.new()
-		rival_mesh_3D.mesh.size = Vector3(8, 8, 16)
-		rival.add_child(rival_mesh_3D)
-		rival_mesh_3D.material_override = StandardMaterial3D.new()
-		rival_mesh_3D.material_override.albedo_color = Color.from_hsv(i / 6.0, 1.0, 1.0)
-
-		var rival_follower = PathFollow3D.new()
-		rival_follower.loop = true
-		path.add_child(rival_follower)
-		rival_followers.append(rival_follower)
-
-		rival_follower.h_offset = randf_range(-64.0, 64.0)
-
-		rival_follower.progress_ratio = 0
-		rival.position = rival_follower.position
-		rival_follower.progress_ratio = 0.03
 
 
 	path.curve.bake_interval = 30
@@ -127,56 +110,17 @@ func _process(delta: float) -> void:
 	else:
 		mat.albedo_color = Color.from_hsv(0.0, 1.0, 1.0)
 
-	for i in range(rival_followers.size()):
-		var follower = rival_followers[i] # PathFollow3D
-		var rival = rivals[i] # Node3D
-
-		# 1. 追従ポイントとの距離チェック (X-Z平面での距離)
-		var distance = rival.position.distance_to(follower.position)
-		if distance < 16.0:
-			follower.progress_ratio += 0.01
-
-		# 2. 現在の向いている方向とターゲット方向の計算
-		# Godot 3D の正面は -Z 方向なので -basis.z を取得
-		var current_direction = - rival.transform.basis.z
-		var target_direction = (follower.position - rival.position).normalized()
-
-		# Y軸（垂直軸）まわりの回転角度差を取得 (ラジアン)
-		var angle_diff = current_direction.signed_angle_to(target_direction, Vector3.UP)
-
-		# 3. 角度差に応じて Y軸を中心に旋回
-		if angle_diff > 0.1:
-			rival.rotation_degrees.y += 1
-		elif angle_diff < -0.1:
-			rival.rotation_degrees.y -= 1
-
-		# 4. 前方へ移動
-		var forward = - rival.transform.basis.z
-		rival.position += forward * randf_range(0.8, 1.1)
+	for rival in rivals:
+		rival.update_behavior()
 
 	for rival in rivals:
-		var diff = player.position - rival.position
-		# Y軸の差分を無視して X-Z 平面での距離を見るため Yを0にリセット
-		diff.y = 0.0
+		rival.apply_player_collision(player)
 
-		if diff.length() < 8.0:
-			var push_dir = diff.normalized()
-			player.position += push_dir
-			rival.position -= push_dir
-
-	# 2. ライバル同士の押し出し処理
 	for i in range(rivals.size()):
-		for j in range(i + 1, rivals.size()): # 重複ループを防いで効率化
+		for j in range(i + 1, rivals.size()):
 			var rival1 = rivals[i]
 			var rival2 = rivals[j]
-
-			var diff = rival1.position - rival2.position
-			diff.y = 0.0
-
-			if diff.length() < 8.0:
-				var push_dir = diff.normalized()
-				rival1.position += push_dir
-				rival2.position -= push_dir
+			rival1.apply_rival_collision(rival2)
 
 
 	var target_position = player.position + player.transform.basis.z * 64 + Vector3(0, 64, 0)
