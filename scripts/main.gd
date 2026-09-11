@@ -77,7 +77,21 @@ func _ready() -> void:
 	var mesh_instance_3d = Main.create_road_mesh(path.curve)
 	add_child(mesh_instance_3d)
 
+
 func _process(delta: float) -> void:
+	var screen_width = get_viewport().get_visible_rect().size.x
+
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		var touch_position = get_viewport().get_mouse_position()
+
+		# 画面の左半分を押している場合
+		if touch_position.x < screen_width / 2.0:
+			karts[0].rotate_left(1.0)
+		# 画面の右半分を押している場合
+		else:
+			karts[0].rotate_right(1.0)
+
+	# PCでのテスト用に A/D キーでも動くように残す場合
 	if Input.is_key_pressed(KEY_A):
 		karts[0].rotate_left(1.0)
 	if Input.is_key_pressed(KEY_D):
