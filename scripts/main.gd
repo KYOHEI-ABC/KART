@@ -41,6 +41,12 @@ func _ready() -> void:
 	add_child(camera)
 
 
+	var light = DirectionalLight3D.new()
+	light.position = Vector3(100, 160, -80)
+	light.rotation_degrees = Vector3(-45, -45, 0)
+	light.shadow_enabled = true
+	add_child(light)
+
 	var path = Path3D.new()
 	add_child(path)
 	path.curve = Curve3D.new()
