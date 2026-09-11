@@ -32,21 +32,3 @@ func update_behavior() -> void:
 
 	var forward = - self.transform.basis.z
 	self.position += forward * randf_range(0.8, 1.1)
-
-func apply_player_collision(player: Node3D) -> void:
-	var diff = player.position - self.position
-	diff.y = 0.0
-
-	if diff.length() < 8.0:
-		var push_dir = diff.normalized()
-		player.position += push_dir
-		self.position -= push_dir
-
-func apply_rival_collision(other: Rival) -> void:
-	var diff = self.position - other.position
-	diff.y = 0.0
-
-	if diff.length() < 8.0:
-		var push_dir = diff.normalized()
-		self.position += push_dir
-		other.position -= push_dir

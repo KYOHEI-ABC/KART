@@ -8,6 +8,16 @@ var path: Path3D
 var camera: Camera3D
 var player: Node3D
 var rivals: Array = []
+var actors: Array = []
+
+static func resolve_collision(a: Node3D, b: Node3D) -> void:
+	var diff = a.position - b.position
+	diff.y = 0.0
+
+	if diff.length() < 8.0:
+		var push_dir = diff.normalized()
+		a.position += push_dir
+		b.position -= push_dir
 
 static func create_box_mesh(color: Color) -> MeshInstance3D:
 	var mesh_instance = MeshInstance3D.new()
@@ -25,6 +35,7 @@ func _ready() -> void:
 	player = Node3D.new()
 	add_child(player)
 	player.add_child(Main.create_box_mesh(Color.from_hsv(0.0, 1.0, 1.0)))
+	actors.append(player)
 
 	path = Path3D.new()
 	add_child(path)
@@ -57,7 +68,7 @@ func _ready() -> void:
 		var rival = Rival.new(i, path)
 		add_child(rival)
 		rivals.append(rival)
-
+		actors.append(rival)
 
 	path.curve.bake_interval = 30
 	var baked_points = path.curve.get_baked_points()
@@ -116,15 +127,11 @@ func _process(delta: float) -> void:
 	for rival in rivals:
 		rival.update_behavior()
 
-	for rival in rivals:
-		rival.apply_player_collision(player)
-
-	for i in range(rivals.size()):
-		for j in range(i + 1, rivals.size()):
-			var rival1 = rivals[i]
-			var rival2 = rivals[j]
-			rival1.apply_rival_collision(rival2)
-
+	for i in range(actors.size()):
+		for j in range(i + 1, actors.size()):
+			var actor1 = actors[i]
+			var actor2 = actors[j]
+			Main.resolve_collision(actor1, actor2)
 
 	var target_position = player.position + player.transform.basis.z * 64 + Vector3(0, 64, 0)
 	camera.position = camera.position.lerp(target_position, 10.0 * delta)
