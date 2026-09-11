@@ -5,6 +5,8 @@ var index: int
 var follower: PathFollow3D
 var path: Path3D
 
+var power: Vector3 = Vector3.ZERO
+
 static func create_box_mesh(color: Color) -> MeshInstance3D:
 	var mesh_instance = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
@@ -21,6 +23,7 @@ func check_course_out() -> void:
 	var mat = mesh_3d.material_override as StandardMaterial3D
 	if (self.position - closest_pt).length() > 64:
 		mat.albedo_color = Color.from_hsv(index / 6.0, 1.0, 0.5)
+		power *= 0.97
 	else:
 		mat.albedo_color = Color.from_hsv(index / 6.0, 1.0, 1.0)
 
@@ -37,8 +40,8 @@ func resolve_collision(others: Array[Kart]) -> void:
 
 		var push_dir = diff.normalized()
 		var overlap = 8.0 - dist
-		self.position += push_dir * overlap * 0.5
-		other.position -= push_dir * overlap * 0.5
+		self.power += push_dir * 0.1
+		other.power -= push_dir * 0.1
 
 func _init(index: int, path: Path3D):
 	self.index = index
@@ -69,13 +72,23 @@ func bot() -> void:
 
 func move_forward() -> void:
 	var forward = - self.transform.basis.z
-	self.position += forward
+
+	power += forward * 0.03
+
+	self.position += power
+
+	print(power.length())
+	power *= 0.99
+
 
 func rotate_left(amount: float = 1.0) -> void:
 	self.rotation_degrees.y += amount
+	power *= 0.99
+
 
 func rotate_right(amount: float = 1.0) -> void:
 	self.rotation_degrees.y -= amount
+	power *= 0.99
 
 func rotate_toward_direction(target_direction: Vector3, step: float = 1.0) -> void:
 	if target_direction.length() == 0.0:
