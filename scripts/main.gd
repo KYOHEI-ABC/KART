@@ -69,7 +69,7 @@ func _ready() -> void:
 	set_point_in_out(path.curve, 4, Vector3(-c, 0, -c))
 	set_point_in_out(path.curve, 5, Vector3(-c, 0, c))
 
-	for i in range(1, 6):
+	for i in range(1, 8):
 		karts.append(Kart.new(i, path))
 		add_child(karts[-1])
 
