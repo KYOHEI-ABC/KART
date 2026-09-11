@@ -88,15 +88,8 @@ func _process(delta: float) -> void:
 
 	karts[0].move_forward(1.0)
 
-	var closest_pt = path.curve.get_closest_point(karts[0].position)
-	closest_pt.y = 0
-	var mesh_3d = karts[0].get_child(0) as MeshInstance3D
-	var mat = mesh_3d.material_override as StandardMaterial3D
-	if (karts[0].position - closest_pt).length() > 64:
-		mat.albedo_color = Color.from_hsv(0.5, 1.0, 1.0)
-	else:
-		mat.albedo_color = Color.from_hsv(0.0, 1.0, 1.0)
-
+	for kart in karts:
+		kart.update_track_color(path.curve)
 
 	for i in range(1, karts.size()):
 		karts[i].bot()

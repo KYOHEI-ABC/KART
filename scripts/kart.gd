@@ -1,6 +1,7 @@
 class_name Kart
 extends Node3D
 
+var index: int
 var follower: PathFollow3D
 
 static func create_box_mesh(color: Color) -> MeshInstance3D:
@@ -11,6 +12,16 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 	mesh_instance.material_override = StandardMaterial3D.new()
 	mesh_instance.material_override.albedo_color = color
 	return mesh_instance
+
+func update_track_color(curve: Curve3D) -> void:
+	var closest_pt = curve.get_closest_point(self.position)
+	closest_pt.y = 0.0
+	var mesh_3d = self.get_child(0) as MeshInstance3D
+	var mat = mesh_3d.material_override as StandardMaterial3D
+	if (self.position - closest_pt).length() > 64:
+		mat.albedo_color = Color.from_hsv(index / 6.0, 1.0, 0.5)
+	else:
+		mat.albedo_color = Color.from_hsv(index / 6.0, 1.0, 1.0)
 
 func resolve_collision(others: Array[Kart]) -> void:
 	for other in others:
@@ -29,6 +40,7 @@ func resolve_collision(others: Array[Kart]) -> void:
 		other.position -= push_dir * overlap * 0.5
 
 func _init(index: int, path: Path3D):
+	self.index = index
 	add_child(create_box_mesh(Color.from_hsv(index / 6.0, 1.0, 1.0)))
 
 	if index == 0:
