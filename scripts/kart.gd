@@ -1,6 +1,8 @@
 class_name Kart
 extends Node3D
 
+var follower: PathFollow3D
+
 static func create_box_mesh(color: Color) -> MeshInstance3D:
 	var mesh_instance = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
@@ -9,6 +11,47 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 	mesh_instance.material_override = StandardMaterial3D.new()
 	mesh_instance.material_override.albedo_color = color
 	return mesh_instance
+
+func resolve_collision(others: Array[Kart]) -> void:
+	for other in others:
+		if other == self:
+			continue
+
+		var diff = self.position - other.position
+		diff.y = 0.0
+		var dist = diff.length()
+		if dist == 0.0 or dist >= 8.0:
+			continue
+
+		var push_dir = diff.normalized()
+		var overlap = 8.0 - dist
+		self.position += push_dir * overlap * 0.5
+		other.position -= push_dir * overlap * 0.5
+
+func _init(index: int, path: Path3D):
+	add_child(create_box_mesh(Color.from_hsv(index / 6.0, 1.0, 1.0)))
+
+	if index == 0:
+		return
+	follower = PathFollow3D.new()
+	path.add_child(follower)
+	follower.loop = true
+	follower.h_offset = randf_range(-64.0, 64.0)
+	follower.progress_ratio = 0.0
+	self.position = follower.position
+	follower.progress_ratio = 0.03
+
+
+func bot() -> void:
+	var distance = self.position.distance_to(follower.position)
+	if distance < 16.0:
+		follower.progress_ratio += 0.01
+
+	var target_direction = follower.position - self.position
+	if target_direction.length() > 0.0:
+		self.rotate_toward_direction(target_direction, 1.0)
+
+	self.move_forward(randf_range(0.8, 1.1))
 
 func move_forward(speed: float = 1.0) -> void:
 	var forward = - self.transform.basis.z

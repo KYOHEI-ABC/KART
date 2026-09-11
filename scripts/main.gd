@@ -5,18 +5,9 @@ extends Node
 var path: Path3D
 
 var camera: Camera3D
-var player: Kart
-var rivals: Array = []
-var actors: Array = []
 
-static func resolve_collision(a: Node3D, b: Node3D) -> void:
-	var diff = a.position - b.position
-	diff.y = 0.0
+var karts: Array[Kart] = []
 
-	if diff.length() < 8.0:
-		var push_dir = diff.normalized()
-		a.position += push_dir
-		b.position -= push_dir
 
 static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 	var mesh_instance_3d = MeshInstance3D.new()
@@ -53,9 +44,8 @@ func _ready() -> void:
 	camera = Camera3D.new()
 	add_child(camera)
 
-	player = Player.new()
-	add_child(player)
-	actors.append(player)
+	karts.append(Kart.new(0, null))
+	add_child(karts[0])
 
 	path = Path3D.new()
 	add_child(path)
@@ -70,7 +60,7 @@ func _ready() -> void:
 		Vector3(0, 0, 500),
 	]
 
-	player.position = points[0]
+	karts[0].position = points[0]
 
 	for point in points:
 		path.curve.add_point(point)
@@ -82,11 +72,9 @@ func _ready() -> void:
 	set_point_in_out(path.curve, 4, Vector3(-c, 0, -c))
 	set_point_in_out(path.curve, 5, Vector3(-c, 0, c))
 
-	for i in range(5):
-		var rival = Rival.new(i, path)
-		add_child(rival)
-		rivals.append(rival)
-		actors.append(rival)
+	for i in range(1, 6):
+		karts.append(Kart.new(i, path))
+		add_child(karts[-1])
 
 	path.curve.bake_interval = 30
 	var mesh_instance_3d = Main.create_road_mesh(path.curve)
@@ -94,33 +82,31 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_A):
-		player.rotate_left(1.0)
+		karts[0].rotate_left(1.0)
 	if Input.is_key_pressed(KEY_D):
-		player.rotate_right(1.0)
+		karts[0].rotate_right(1.0)
 
-	player.move_forward(1.0)
+	karts[0].move_forward(1.0)
 
-	var closest_pt = path.curve.get_closest_point(player.position)
+	var closest_pt = path.curve.get_closest_point(karts[0].position)
 	closest_pt.y = 0
-	var mesh_3d = player.get_child(0) as MeshInstance3D
+	var mesh_3d = karts[0].get_child(0) as MeshInstance3D
 	var mat = mesh_3d.material_override as StandardMaterial3D
-	if (player.position - closest_pt).length() > 64:
+	if (karts[0].position - closest_pt).length() > 64:
 		mat.albedo_color = Color.from_hsv(0.5, 1.0, 1.0)
 	else:
 		mat.albedo_color = Color.from_hsv(0.0, 1.0, 1.0)
 
-	for rival in rivals:
-		rival.update_behavior()
 
-	for i in range(actors.size()):
-		for j in range(i + 1, actors.size()):
-			var actor1 = actors[i]
-			var actor2 = actors[j]
-			Main.resolve_collision(actor1, actor2)
+	for i in range(1, karts.size()):
+		karts[i].bot()
 
-	var target_position = player.position + player.transform.basis.z * 64 + Vector3(0, 64, 0)
+	for kart in karts:
+		kart.resolve_collision(karts)
+
+	var target_position = karts[0].position + karts[0].transform.basis.z * 64 + Vector3(0, 64, 0)
 	camera.position = camera.position.lerp(target_position, 10.0 * delta)
-	camera.look_at(player.position + Vector3(0, 1.0, 0), Vector3.UP)
+	camera.look_at(karts[0].position + Vector3(0, 1.0, 0), Vector3.UP)
 
 
 func set_point_in_out(curve: Curve3D, index: int, point: Vector3):
