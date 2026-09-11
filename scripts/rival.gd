@@ -3,6 +3,16 @@ extends Node3D
 
 var follower: PathFollow3D
 
+static func create_box_mesh(parent: Node3D, color: Color) -> MeshInstance3D:
+	var mesh_instance = MeshInstance3D.new()
+	var box_mesh = BoxMesh.new()
+	box_mesh.size = Vector3(8, 8, 16)
+	mesh_instance.mesh = box_mesh
+	mesh_instance.material_override = StandardMaterial3D.new()
+	mesh_instance.material_override.albedo_color = color
+	parent.add_child(mesh_instance)
+	return mesh_instance
+
 func setup(path: Path3D, color_hue: float) -> void:
 	follower = PathFollow3D.new()
 	follower.loop = true
@@ -12,12 +22,8 @@ func setup(path: Path3D, color_hue: float) -> void:
 	self.position = follower.position
 	follower.progress_ratio = 0.03
 
-	var rival_mesh_3d = MeshInstance3D.new()
-	rival_mesh_3d.mesh = BoxMesh.new()
-	rival_mesh_3d.mesh.size = Vector3(8, 8, 16)
-	add_child(rival_mesh_3d)
-	rival_mesh_3d.material_override = StandardMaterial3D.new()
-	rival_mesh_3d.material_override.albedo_color = Color.from_hsv(color_hue, 1.0, 1.0)
+	var color = Color.from_hsv(color_hue, 1.0, 1.0)
+	Rival.create_box_mesh(self, color)
 
 func update_behavior() -> void:
 	if follower == null:

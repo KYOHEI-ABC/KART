@@ -1,6 +1,7 @@
 class_name Main
 extends Node
 
+const RivalScript = preload("res://scripts/rival.gd")
 
 var path: Path3D
 
@@ -15,12 +16,7 @@ func _ready() -> void:
 
 	player = Node3D.new()
 	add_child(player)
-	var player_mesh_3d = MeshInstance3D.new()
-	player_mesh_3d.mesh = BoxMesh.new()
-	player_mesh_3d.mesh.size = Vector3(8, 8, 16)
-	player.add_child(player_mesh_3d)
-	player_mesh_3d.material_override = StandardMaterial3D.new()
-	player_mesh_3d.material_override.albedo_color = Color.from_hsv(0.0, 1.0, 1.0)
+	RivalScript.create_box_mesh(player, Color.from_hsv(0.0, 1.0, 1.0))
 
 	path = Path3D.new()
 	add_child(path)
