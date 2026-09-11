@@ -3,32 +3,20 @@ extends Node3D
 
 var follower: PathFollow3D
 
-static func create_box_mesh(parent: Node3D, color: Color) -> MeshInstance3D:
-	var mesh_instance = MeshInstance3D.new()
-	var box_mesh = BoxMesh.new()
-	box_mesh.size = Vector3(8, 8, 16)
-	mesh_instance.mesh = box_mesh
-	mesh_instance.material_override = StandardMaterial3D.new()
-	mesh_instance.material_override.albedo_color = color
-	parent.add_child(mesh_instance)
-	return mesh_instance
 
-func setup(path: Path3D, color_hue: float) -> void:
+func _init(index: int, path: Path3D):
 	follower = PathFollow3D.new()
-	follower.loop = true
 	path.add_child(follower)
+	follower.loop = true
 	follower.h_offset = randf_range(-64.0, 64.0)
 	follower.progress_ratio = 0.0
 	self.position = follower.position
 	follower.progress_ratio = 0.03
 
-	var color = Color.from_hsv(color_hue, 1.0, 1.0)
-	Rival.create_box_mesh(self, color)
+	var color = Color.from_hsv(index / 6.0, 1.0, 1.0)
+	add_child(Main.create_box_mesh(color))
 
 func update_behavior() -> void:
-	if follower == null:
-		return
-
 	var distance = self.position.distance_to(follower.position)
 	if distance < 16.0:
 		follower.progress_ratio += 0.01

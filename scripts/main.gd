@@ -9,6 +9,14 @@ var camera: Camera3D
 var player: Node3D
 var rivals: Array = []
 
+static func create_box_mesh(color: Color) -> MeshInstance3D:
+	var mesh_instance = MeshInstance3D.new()
+	var box_mesh = BoxMesh.new()
+	box_mesh.size = Vector3(8, 8, 16)
+	mesh_instance.mesh = box_mesh
+	mesh_instance.material_override = StandardMaterial3D.new()
+	mesh_instance.material_override.albedo_color = color
+	return mesh_instance
 
 func _ready() -> void:
 	camera = Camera3D.new()
@@ -16,7 +24,7 @@ func _ready() -> void:
 
 	player = Node3D.new()
 	add_child(player)
-	RivalScript.create_box_mesh(player, Color.from_hsv(0.0, 1.0, 1.0))
+	player.add_child(Main.create_box_mesh(Color.from_hsv(0.0, 1.0, 1.0)))
 
 	path = Path3D.new()
 	add_child(path)
@@ -46,9 +54,8 @@ func _ready() -> void:
 
 
 	for i in range(5):
-		var rival = Rival.new()
+		var rival = Rival.new(i, path)
 		add_child(rival)
-		rival.setup(path, i / 6.0)
 		rivals.append(rival)
 
 
