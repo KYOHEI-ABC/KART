@@ -1,12 +1,11 @@
 class_name Main
 extends Node
 
-const RivalScript = preload("res://scripts/rival.gd")
 
 var path: Path3D
 
 var camera: Camera3D
-var player: Node3D
+var player: Kart
 var rivals: Array = []
 var actors: Array = []
 
@@ -18,15 +17,6 @@ static func resolve_collision(a: Node3D, b: Node3D) -> void:
 		var push_dir = diff.normalized()
 		a.position += push_dir
 		b.position -= push_dir
-
-static func create_box_mesh(color: Color) -> MeshInstance3D:
-	var mesh_instance = MeshInstance3D.new()
-	var box_mesh = BoxMesh.new()
-	box_mesh.size = Vector3(8, 8, 16)
-	mesh_instance.mesh = box_mesh
-	mesh_instance.material_override = StandardMaterial3D.new()
-	mesh_instance.material_override.albedo_color = color
-	return mesh_instance
 
 static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 	var mesh_instance_3d = MeshInstance3D.new()
@@ -63,9 +53,8 @@ func _ready() -> void:
 	camera = Camera3D.new()
 	add_child(camera)
 
-	player = Node3D.new()
+	player = Player.new()
 	add_child(player)
-	player.add_child(Main.create_box_mesh(Color.from_hsv(0.0, 1.0, 1.0)))
 	actors.append(player)
 
 	path = Path3D.new()
@@ -83,7 +72,6 @@ func _ready() -> void:
 
 	player.position = points[0]
 
-
 	for point in points:
 		path.curve.add_point(point)
 	path.curve.add_point(points[0])
@@ -93,7 +81,6 @@ func _ready() -> void:
 	set_point_in_out(path.curve, 2, Vector3(c, 0, -c))
 	set_point_in_out(path.curve, 4, Vector3(-c, 0, -c))
 	set_point_in_out(path.curve, 5, Vector3(-c, 0, c))
-
 
 	for i in range(5):
 		var rival = Rival.new(i, path)
@@ -107,11 +94,11 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_A):
-		player.rotation_degrees.y += 1
+		player.rotate_left(1.0)
 	if Input.is_key_pressed(KEY_D):
-		player.rotation_degrees.y -= 1
+		player.rotate_right(1.0)
 
-	player.position += -player.transform.basis.z
+	player.move_forward(1.0)
 
 	var closest_pt = path.curve.get_closest_point(player.position)
 	closest_pt.y = 0

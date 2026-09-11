@@ -1,8 +1,7 @@
 class_name Rival
-extends Node3D
+extends Kart
 
 var follower: PathFollow3D
-
 
 func _init(index: int, path: Path3D):
 	follower = PathFollow3D.new()
@@ -14,21 +13,15 @@ func _init(index: int, path: Path3D):
 	follower.progress_ratio = 0.03
 
 	var color = Color.from_hsv(index / 6.0, 1.0, 1.0)
-	add_child(Main.create_box_mesh(color))
+	add_child(Kart.create_box_mesh(color))
 
 func update_behavior() -> void:
 	var distance = self.position.distance_to(follower.position)
 	if distance < 16.0:
 		follower.progress_ratio += 0.01
 
-	var current_direction = - self.transform.basis.z
-	var target_direction = (follower.position - self.position).normalized()
-	var angle_diff = current_direction.signed_angle_to(target_direction, Vector3.UP)
+	var target_direction = follower.position - self.position
+	if target_direction.length() > 0.0:
+		self.rotate_toward_direction(target_direction, 1.0)
 
-	if angle_diff > 0.1:
-		self.rotation_degrees.y += 1
-	elif angle_diff < -0.1:
-		self.rotation_degrees.y -= 1
-
-	var forward = - self.transform.basis.z
-	self.position += forward * randf_range(0.8, 1.1)
+	self.move_forward(randf_range(0.8, 1.1))
