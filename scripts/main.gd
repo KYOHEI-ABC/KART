@@ -11,7 +11,7 @@ var camera: Camera3D
 var karts: Array[Kart] = []
 var zones: Array[Node3D] = []
 
-static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
+static func create_road_mesh(curve: Curve3D, road_texture: Texture2D = null) -> MeshInstance3D:
 	var mesh_instance_3d = MeshInstance3D.new()
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
@@ -20,6 +20,10 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 	var half_w = road_width_3d * 0.5
 	var baked_points = curve.get_baked_points()
 
+	# UVの進行方向（V軸）のタイリング制御用
+	var accumulated_distance: float = 0.0
+	var texture_scale: float = 1.0 / road_width_3d # テクスチャの比率調整用
+
 	for i in range(baked_points.size()):
 		var current = baked_points[i]
 		var next_pt = baked_points[(i + 1) % baked_points.size()]
@@ -27,19 +31,42 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 		var dir = (next_pt - prev_pt).normalized()
 		var side = dir.cross(Vector3.UP).normalized()
 
-		st.set_color(Color(0.5, 0.5, 0.5))
+		# 前のポイントからの移動距離を加算
+		if i > 0:
+			accumulated_distance += current.distance_to(baked_points[i - 1])
+
+		var v_coord = accumulated_distance * texture_scale
+
+		# --- 左側頂点 ---
+		# st.set_color(Color(0.5, 0.5, 0.5))
+		st.set_uv(Vector2(0.0, v_coord)) # U=0 (左端)
 		st.add_vertex(current - side * half_w)
+
+		# --- 右側頂点 ---
+		# st.set_color(Color(0.5, 0.5, 0.5))
+		st.set_uv(Vector2(1.0, v_coord)) # U=1 (右端)
 		st.add_vertex(current + side * half_w)
 
 	var array_mesh = st.commit()
 	mesh_instance_3d.mesh = array_mesh
 
+	# マテリアルの設定
 	var road_mat = StandardMaterial3D.new()
 	road_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	road_mat.vertex_color_use_as_albedo = true
 	road_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+	road_texture = load("res://assets/stone.png")
+	road_mat.uv1_scale = Vector3(4, 4, 1)
+	road_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+
+	# テクスチャが渡されている場合は適用
+	if road_texture:
+		road_mat.albedo_texture = road_texture
+		# リピート描画を有効化（Godot 4のStandardMaterial3DではデフォルトでTexture Repeatは有効）
+		road_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+
 	mesh_instance_3d.material_override = road_mat
-	mesh_instance_3d.position.y = -0.01
 
 	return mesh_instance_3d
 
@@ -51,6 +78,16 @@ func _ready() -> void:
 	camera.rotation_degrees.x = -90
 
 	add_child(camera)
+
+	var mesh_instance = MeshInstance3D.new()
+	add_child(mesh_instance)
+	mesh_instance.mesh = PlaneMesh.new()
+	mesh_instance.mesh.size = Vector2(1024 * 4, 1024 * 4)
+	mesh_instance.material_override = StandardMaterial3D.new()
+	mesh_instance.material_override.albedo_texture = load("res://assets/grass_carried.png")
+	mesh_instance.material_override.uv1_scale = Vector3(64, 64, 1)
+	mesh_instance.material_override.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	mesh_instance.position.y = -0.01
 
 
 	# var light = DirectionalLight3D.new()
