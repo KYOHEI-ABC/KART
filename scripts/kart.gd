@@ -72,7 +72,7 @@ func bot() -> void:
 func move_forward() -> void:
 	var forward = - self.transform.basis.z
 
-	power += forward * 0.03
+	power += forward * 0.05
 
 	self.position += power
 
