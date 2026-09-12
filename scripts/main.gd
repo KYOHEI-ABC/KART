@@ -85,8 +85,8 @@ func _ready() -> void:
 	var mesh_instance_3d = Main.create_road_mesh(path.curve)
 	add_child(mesh_instance_3d)
 
-	spawn_dash_zones(path.curve, 4)
-	spawn_obstacles(path.curve, 5)
+	spawn_dash_zones(path.curve, 16)
+	spawn_obstacles(path.curve, 16)
 
 
 func _process(delta: float) -> void:
@@ -133,7 +133,7 @@ func _process(delta: float) -> void:
 static func create_dash_zone_mesh() -> MeshInstance3D:
 	var zone_mesh = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
-	box_mesh.size = Vector3(36.0, 0.5, 56.0)
+	box_mesh.size = Vector3(30.0, 1, 30.0)
 	zone_mesh.mesh = box_mesh
 
 	var material = StandardMaterial3D.new()
@@ -144,7 +144,7 @@ static func create_dash_zone_mesh() -> MeshInstance3D:
 static func create_obstacle_mesh() -> MeshInstance3D:
 	var obstacle_mesh = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
-	box_mesh.size = Vector3(22.0, 30.0, 22.0)
+	box_mesh.size = Vector3(30.0, 1, 30.0)
 	obstacle_mesh.mesh = box_mesh
 
 	var material = StandardMaterial3D.new()
@@ -172,7 +172,6 @@ func spawn_dash_zones(curve: Curve3D, count: int = 4) -> void:
 		zone.position = point
 		zone.look_at_from_position(point, point + tangent, Vector3.UP)
 		var mesh = Main.create_dash_zone_mesh()
-		mesh.position.y = 0.4
 		zone.add_child(mesh)
 		add_child(zone)
 		dash_zones.append(zone)
@@ -190,7 +189,6 @@ func spawn_obstacles(curve: Curve3D, count: int = 3) -> void:
 		var obstacle = Node3D.new()
 		obstacle.position = point
 		var mesh = Main.create_obstacle_mesh()
-		mesh.position.y = 15.0
 		obstacle.add_child(mesh)
 		add_child(obstacle)
 		obstacles.append(obstacle)
@@ -200,25 +198,17 @@ func apply_obstacle_collision() -> void:
 		for kart in karts:
 			var diff = kart.position - obstacle.position
 			diff.y = 0.0
-			var dist = diff.length()
-			if dist < 22.0:
-				# kart.stun_timer = 1
+			if diff.length() < 30.0:
 				kart.power *= 0.9
-
-				# var push_dir = diff.normalized()
-				# if push_dir.length() == 0.0:
-				# 	push_dir = Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)).normalized()
-
-				# # kart.position += push_dir * 30.0
-				# kart.power += push_dir
 
 func apply_dash_boost() -> void:
 	for zone in dash_zones:
 		for kart in karts:
-			var dist = (zone.position - kart.position).length()
-			if dist < 30.0:
+			var diff = (zone.position - kart.position)
+			diff.y = 0
+			if diff.length() < 30.0:
 				var forward = - kart.transform.basis.z
-				kart.power += forward * 0.4
+				kart.power += forward * 0.5
 
 func set_point_in_out(curve: Curve3D, index: int, point: Vector3):
 	curve.set_point_in(index, point)
