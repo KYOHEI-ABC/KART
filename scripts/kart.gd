@@ -13,6 +13,7 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 	box_mesh.size = Vector3(8, 8, 16)
 	mesh_instance.mesh = box_mesh
 	mesh_instance.material_override = StandardMaterial3D.new()
+	mesh_instance.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mesh_instance.material_override.albedo_color = color
 	return mesh_instance
 
@@ -21,10 +22,10 @@ func check_course_out() -> void:
 	closest_pt.y = 0.0
 	var mat = (get_child(0) as MeshInstance3D).material_override as StandardMaterial3D
 	if (position - closest_pt).length() > 64:
-		mat.albedo_color = Color.from_hsv(index / 8.0, 1.0, 0.5)
+		mat.albedo_color.v = 0.45
 		power = power.lerp(Vector3.ZERO, 0.01)
 	else:
-		mat.albedo_color = Color.from_hsv(index / 8.0, 1.0, 1.0)
+		mat.albedo_color.v = 0.9
 
 func resolve_collision(others: Array[Kart]) -> void:
 	for other in others:
@@ -43,7 +44,7 @@ func resolve_collision(others: Array[Kart]) -> void:
 func _init(index: int, path: Path3D):
 	self.index = index
 	self.path = path
-	add_child(create_box_mesh(Color.from_hsv(index / 8.0, 1.0, 1.0)))
+	add_child(create_box_mesh(Color.from_hsv(index / 8.0, 0.4, 0.9)))
 
 	if index == 0:
 		return

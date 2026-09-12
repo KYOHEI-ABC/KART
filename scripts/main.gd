@@ -27,7 +27,7 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 		var dir = (next_pt - prev_pt).normalized()
 		var side = dir.cross(Vector3.UP).normalized()
 
-		st.set_color(Color(0.2, 0.2, 0.2))
+		st.set_color(Color(0.5, 0.5, 0.5))
 		st.add_vertex(current - side * half_w)
 		st.add_vertex(current + side * half_w)
 
@@ -37,21 +37,24 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 	var road_mat = StandardMaterial3D.new()
 	road_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	road_mat.vertex_color_use_as_albedo = true
+	road_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mesh_instance_3d.material_override = road_mat
 	mesh_instance_3d.position.y = -0.01
 
 	return mesh_instance_3d
 
 func _ready() -> void:
+	RenderingServer.set_default_clear_color(Color.from_hsv(120 / 360.0, 0.8, 0.4))
+
 	camera = Camera3D.new()
 	add_child(camera)
 
 
-	var light = DirectionalLight3D.new()
-	light.position = Vector3(100, 160, -80)
-	light.rotation_degrees = Vector3(-45, -45, 0)
-	light.shadow_enabled = true
-	add_child(light)
+	# var light = DirectionalLight3D.new()
+	# light.position = Vector3(100, 160, -80)
+	# light.rotation_degrees = Vector3(-45, -45, 0)
+	# light.shadow_enabled = true
+	# add_child(light)
 
 	var path = Path3D.new()
 	add_child(path)
@@ -89,8 +92,8 @@ func _ready() -> void:
 	var mesh_instance_3d = Main.create_road_mesh(path.curve)
 	add_child(mesh_instance_3d)
 
-	spawn_zones(path.curve, 16, Color(0.0, 1.0, 0, 0.8), ZoneType.DASH)
-	spawn_zones(path.curve, 16, Color(1.0, 0, 0, 0.8), ZoneType.OBSTACLE)
+	spawn_zones(path.curve, 8, Color.from_hsv(120 / 360.0, 0.9, 0.9), ZoneType.DASH)
+	spawn_zones(path.curve, 8, Color.from_hsv(0, 0.9, 0.9), ZoneType.OBSTACLE)
 
 
 func _process(delta: float) -> void:
@@ -141,6 +144,7 @@ static func create_zone_mesh(color: Color) -> MeshInstance3D:
 
 	var material = StandardMaterial3D.new()
 	material.albedo_color = color
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	zone_mesh.material_override = material
 	return zone_mesh
 
