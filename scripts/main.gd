@@ -85,8 +85,8 @@ func _ready() -> void:
 	var mesh_instance_3d = Main.create_road_mesh(path.curve)
 	add_child(mesh_instance_3d)
 
-	spawn_dash_zones(path.curve, 16)
-	spawn_obstacles(path.curve, 16)
+	spawn_zones(path.curve, 16, Color(0.0, 1.0, 0, 0.8), 1)
+	spawn_zones(path.curve, 16, Color(1.0, 0, 0, 0.8), -1)
 
 
 func _process(delta: float) -> void:
@@ -130,29 +130,19 @@ func _process(delta: float) -> void:
 	camera.look_at(karts[0].position + Vector3(0, 1.0, 0), Vector3.UP)
 
 
-static func create_dash_zone_mesh() -> MeshInstance3D:
+static func create_zone_mesh(color: Color) -> MeshInstance3D:
 	var zone_mesh = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
 	box_mesh.size = Vector3(30.0, 1, 30.0)
 	zone_mesh.mesh = box_mesh
 
 	var material = StandardMaterial3D.new()
-	material.albedo_color = Color(0.0, 1.0, 0.4, 0.85)
+	material.albedo_color = color
 	zone_mesh.material_override = material
 	return zone_mesh
 
-static func create_obstacle_mesh() -> MeshInstance3D:
-	var obstacle_mesh = MeshInstance3D.new()
-	var box_mesh = BoxMesh.new()
-	box_mesh.size = Vector3(30.0, 1, 30.0)
-	obstacle_mesh.mesh = box_mesh
 
-	var material = StandardMaterial3D.new()
-	material.albedo_color = Color(1.0, 0.2, 0.2, 1.0)
-	obstacle_mesh.material_override = material
-	return obstacle_mesh
-
-func spawn_dash_zones(curve: Curve3D, count: int = 4) -> void:
+func spawn_zones(curve: Curve3D, count: int, color: Color, dash) -> void:
 	var points = curve.get_baked_points()
 	if points.is_empty():
 		return
@@ -168,30 +158,24 @@ func spawn_dash_zones(curve: Curve3D, count: int = 4) -> void:
 		if tangent.length() == 0.0:
 			tangent = Vector3.FORWARD
 
+		# 1. 進行方向(tangent) と 上方向(UP) の外積から「右方向」のベクトルを取得
+		var side = tangent.cross(Vector3.UP).normalized()
+
+		# 2. 左右にランダムな距離をずらす（-max_offset ～ +max_offset）
+		var offset_distance = randf_range(-64, 64)
+		point += side * offset_distance
+
 		var zone = Node3D.new()
 		zone.position = point
 		zone.look_at_from_position(point, point + tangent, Vector3.UP)
-		var mesh = Main.create_dash_zone_mesh()
+		var mesh = Main.create_zone_mesh(color)
 		zone.add_child(mesh)
 		add_child(zone)
-		dash_zones.append(zone)
+		if dash == 1:
+			dash_zones.append(zone)
+		else:
+			obstacles.append(zone)
 
-func spawn_obstacles(curve: Curve3D, count: int = 3) -> void:
-	var points = curve.get_baked_points()
-	if points.is_empty():
-		return
-
-	for i in range(count):
-		var idx = randi() % points.size()
-		var point = points[idx]
-		point.y = 0.0
-
-		var obstacle = Node3D.new()
-		obstacle.position = point
-		var mesh = Main.create_obstacle_mesh()
-		obstacle.add_child(mesh)
-		add_child(obstacle)
-		obstacles.append(obstacle)
 
 func apply_obstacle_collision() -> void:
 	for obstacle in obstacles:
