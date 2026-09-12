@@ -1,11 +1,15 @@
 class_name Main
 extends Node
 
+enum ZoneType {
+	DASH,
+	OBSTACLE,
+}
+
 var camera: Camera3D
 
 var karts: Array[Kart] = []
-var dash_zones: Array[Node3D] = []
-var obstacles: Array[Node3D] = []
+var zones: Array[Node3D] = []
 
 static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 	var mesh_instance_3d = MeshInstance3D.new()
@@ -85,8 +89,8 @@ func _ready() -> void:
 	var mesh_instance_3d = Main.create_road_mesh(path.curve)
 	add_child(mesh_instance_3d)
 
-	spawn_zones(path.curve, 16, Color(0.0, 1.0, 0, 0.8), 1)
-	spawn_zones(path.curve, 16, Color(1.0, 0, 0, 0.8), -1)
+	spawn_zones(path.curve, 16, Color(0.0, 1.0, 0, 0.8), ZoneType.DASH)
+	spawn_zones(path.curve, 16, Color(1.0, 0, 0, 0.8), ZoneType.OBSTACLE)
 
 
 func _process(delta: float) -> void:
@@ -109,8 +113,7 @@ func _process(delta: float) -> void:
 		karts[0].rotate_right(1.0)
 
 
-	apply_obstacle_collision()
-	apply_dash_boost()
+	apply_zone_effects()
 
 	karts[0].move_forward()
 
@@ -142,7 +145,7 @@ static func create_zone_mesh(color: Color) -> MeshInstance3D:
 	return zone_mesh
 
 
-func spawn_zones(curve: Curve3D, count: int, color: Color, dash) -> void:
+func spawn_zones(curve: Curve3D, count: int, color: Color, zone_type: int) -> void:
 	var points = curve.get_baked_points()
 	if points.is_empty():
 		return
@@ -158,41 +161,34 @@ func spawn_zones(curve: Curve3D, count: int, color: Color, dash) -> void:
 		if tangent.length() == 0.0:
 			tangent = Vector3.FORWARD
 
-		# 1. 進行方向(tangent) と 上方向(UP) の外積から「右方向」のベクトルを取得
 		var side = tangent.cross(Vector3.UP).normalized()
-
-		# 2. 左右にランダムな距離をずらす（-max_offset ～ +max_offset）
 		var offset_distance = randf_range(-64, 64)
 		point += side * offset_distance
 
 		var zone = Node3D.new()
 		zone.position = point
 		zone.look_at_from_position(point, point + tangent, Vector3.UP)
+		zone.set_meta("zone_type", zone_type)
 		var mesh = Main.create_zone_mesh(color)
 		zone.add_child(mesh)
 		add_child(zone)
-		if dash == 1:
-			dash_zones.append(zone)
-		else:
-			obstacles.append(zone)
+		zones.append(zone)
 
 
-func apply_obstacle_collision() -> void:
-	for obstacle in obstacles:
+func apply_zone_effects() -> void:
+	for zone in zones:
+		var zone_type = zone.get_meta("zone_type", ZoneType.OBSTACLE)
 		for kart in karts:
-			var diff = kart.position - obstacle.position
+			var diff = zone.position - kart.position
 			diff.y = 0.0
-			if diff.length() < 30.0:
-				kart.power *= 0.9
+			if diff.length() >= 30.0:
+				continue
 
-func apply_dash_boost() -> void:
-	for zone in dash_zones:
-		for kart in karts:
-			var diff = (zone.position - kart.position)
-			diff.y = 0
-			if diff.length() < 30.0:
+			if zone_type == ZoneType.DASH:
 				var forward = - kart.transform.basis.z
 				kart.power += forward * 0.5
+			elif zone_type == ZoneType.OBSTACLE:
+				kart.power *= 0.9
 
 func set_point_in_out(curve: Curve3D, index: int, point: Vector3):
 	curve.set_point_in(index, point)

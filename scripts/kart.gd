@@ -17,11 +17,10 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 	return mesh_instance
 
 func check_course_out() -> void:
-	var closest_pt = path.curve.get_closest_point(self.position)
+	var closest_pt = path.curve.get_closest_point(position)
 	closest_pt.y = 0.0
-	var mesh_3d = self.get_child(0) as MeshInstance3D
-	var mat = mesh_3d.material_override as StandardMaterial3D
-	if (self.position - closest_pt).length() > 64:
+	var mat = (get_child(0) as MeshInstance3D).material_override as StandardMaterial3D
+	if (position - closest_pt).length() > 64:
 		mat.albedo_color = Color.from_hsv(index / 8.0, 1.0, 0.5)
 		power = power.lerp(Vector3.ZERO, 0.01)
 	else:
@@ -32,15 +31,13 @@ func resolve_collision(others: Array[Kart]) -> void:
 		if other == self:
 			continue
 
-		var diff = self.position - other.position
+		var diff = position - other.position
 		diff.y = 0.0
-		var dist = diff.length()
-		if dist == 0.0 or dist >= 8.0:
+		if diff.length() == 0.0 or diff.length() >= 8.0:
 			continue
 
 		var push_dir = diff.normalized()
-		var overlap = 8.0 - dist
-		self.power += push_dir * 0.1
+		power += push_dir * 0.1
 		other.power -= push_dir * 0.1
 
 func _init(index: int, path: Path3D):
@@ -60,22 +57,17 @@ func _init(index: int, path: Path3D):
 
 
 func bot() -> void:
-	var current_offset = path.curve.get_closest_offset(position)
-	follower.progress = current_offset + path.curve.get_baked_length() * 0.01
+	follower.progress = path.curve.get_closest_offset(position) + path.curve.get_baked_length() * 0.01
 
-	var target_direction = follower.position - self.position
+	var target_direction = follower.position - position
 	if target_direction.length() > 0.0:
-		self.rotate_toward_direction(target_direction, 1.0)
+		rotate_toward_direction(target_direction, 1.0)
 
-	self.move_forward()
+	move_forward()
 
 func move_forward() -> void:
-	var forward = - self.transform.basis.z
-
-	power += forward * 0.05
-
-	self.position += power
-
+	power += -transform.basis.z * 0.05
+	position += power
 	power *= 0.99
 
 
@@ -101,13 +93,8 @@ func rotate_toward_direction(target_direction: Vector3, step: float = 1.0) -> vo
 		self.rotate_right(step)
 
 func adjust_speed(others: Array[Kart]) -> void:
-	var total_length: float = path.curve.get_baked_length()
-	var closest_offset: float = path.curve.get_closest_offset(position)
-	var my_ratio = closest_offset / total_length
-
-	var target_ratio = path.curve.get_closest_offset(others[0].position) / total_length
-
-	var diff: float = target_ratio - my_ratio
+	var total_length = path.curve.get_baked_length()
+	var diff = path.curve.get_closest_offset(others[0].position) / total_length - path.curve.get_closest_offset(position) / total_length
 
 	if diff > 0.5:
 		diff -= 1.0
@@ -116,7 +103,7 @@ func adjust_speed(others: Array[Kart]) -> void:
 
 	if diff > 0.03:
 		# ライバルが遅れている
-		follower.progress_ratio = target_ratio - 0.01
+		follower.progress_ratio = path.curve.get_closest_offset(others[0].position) / total_length - 0.01
 		position = follower.position
 	elif diff < -0.03:
 		# ライバルが先行
