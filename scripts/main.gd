@@ -120,6 +120,8 @@ func _process(delta: float) -> void:
 	for i in range(1, karts.size()):
 		karts[i].bot()
 
+		karts[i].adjust_speed(karts)
+
 	for kart in karts:
 		kart.resolve_collision(karts)
 

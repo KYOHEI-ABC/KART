@@ -99,3 +99,25 @@ func rotate_toward_direction(target_direction: Vector3, step: float = 1.0) -> vo
 		self.rotate_left(step)
 	elif angle_diff < -0.1:
 		self.rotate_right(step)
+
+func adjust_speed(others: Array[Kart]) -> void:
+	var total_length: float = path.curve.get_baked_length()
+	var closest_offset: float = path.curve.get_closest_offset(position)
+	var my_ratio = closest_offset / total_length
+
+	var target_ratio = path.curve.get_closest_offset(others[0].position) / total_length
+
+	var diff: float = target_ratio - my_ratio
+
+	if diff > 0.5:
+		diff -= 1.0
+	elif diff < -0.5:
+		diff += 1.0
+
+	if diff > 0.03:
+		# ライバルが遅れている
+		follower.progress_ratio = target_ratio - 0.01
+		position = follower.position
+	elif diff < -0.03:
+		# ライバルが先行
+		power *= 0.97
