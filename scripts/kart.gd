@@ -102,10 +102,10 @@ func adjust_speed(others: Array[Kart]) -> void:
 	elif diff < -0.5:
 		diff += 1.0
 
-	if diff > 0.03:
+	if diff > 0.1:
 		# ライバルが遅れている
-		follower.progress_ratio = path.curve.get_closest_offset(others[0].position) / total_length - 0.01
+		follower.progress_ratio = path.curve.get_closest_offset(others[0].position) / total_length - 0.05
 		position = follower.position
-	elif diff < -0.03:
+	elif diff < -0.1:
 		# ライバルが先行
 		power *= 0.97

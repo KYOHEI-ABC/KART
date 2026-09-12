@@ -47,6 +47,9 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color.from_hsv(120 / 360.0, 0.8, 0.4))
 
 	camera = Camera3D.new()
+	camera.position.y = 1024
+	camera.rotation_degrees.x = -90
+
 	add_child(camera)
 
 
