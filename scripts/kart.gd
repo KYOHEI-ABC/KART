@@ -23,7 +23,10 @@ func check_course_out() -> void:
 	var mat = (get_child(0) as MeshInstance3D).material_override as StandardMaterial3D
 	if (position - closest_pt).length() > 64:
 		mat.albedo_color.v = 0.45
-		power = power.lerp(Vector3.ZERO, 0.01)
+		if index == 0:
+			power = power.lerp(Vector3.ZERO, 0.1)
+		else:
+			power = power.lerp(Vector3.ZERO, 0.03)
 	else:
 		mat.albedo_color.v = 0.9
 
@@ -102,10 +105,10 @@ func adjust_speed(others: Array[Kart]) -> void:
 	elif diff < -0.5:
 		diff += 1.0
 
-	if diff > 0.1:
+	if diff > 0.05:
 		# ライバルが遅れている
 		follower.progress_ratio = path.curve.get_closest_offset(others[0].position) / total_length - 0.05
 		position = follower.position
-	elif diff < -0.1:
+	elif diff < -0.3:
 		# ライバルが先行
-		power *= 0.97
+		power *= 0.99

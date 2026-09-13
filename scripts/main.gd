@@ -90,11 +90,11 @@ func _ready() -> void:
 	mesh_instance.position.y = -0.01
 
 
-	# var light = DirectionalLight3D.new()
-	# light.position = Vector3(100, 160, -80)
-	# light.rotation_degrees = Vector3(-45, -45, 0)
-	# light.shadow_enabled = true
-	# add_child(light)
+	var light = DirectionalLight3D.new()
+	light.position = Vector3(128, 128, 0)
+	light.rotation_degrees = Vector3(-45, -45, 0)
+	light.shadow_enabled = true
+	add_child(light)
 
 	var path = Path3D.new()
 	add_child(path)
@@ -131,6 +131,7 @@ func _ready() -> void:
 	path.curve.bake_interval = 30
 	var mesh_instance_3d = Main.create_road_mesh(path.curve)
 	add_child(mesh_instance_3d)
+	mesh_instance_3d.position.y = 0.01
 
 	spawn_zones(path.curve, 8, Color.from_hsv(120 / 360.0, 0.9, 0.9), ZoneType.DASH)
 	spawn_zones(path.curve, 8, Color.from_hsv(0, 0.9, 0.9), ZoneType.OBSTACLE)
@@ -154,7 +155,10 @@ func _process(delta: float) -> void:
 		karts[0].rotate_left(1.0)
 	if Input.is_key_pressed(KEY_D):
 		karts[0].rotate_right(1.0)
-
+	if Input.is_key_pressed(KEY_SHIFT):
+		karts[0].rotate_left(1.0)
+	if Input.is_key_pressed(KEY_ENTER):
+		karts[0].rotate_right(1.0)
 
 	apply_zone_effects()
 
@@ -222,7 +226,9 @@ func spawn_zones(curve: Curve3D, count: int, color: Color, zone_type: int) -> vo
 func apply_zone_effects() -> void:
 	for zone in zones:
 		var zone_type = zone.get_meta("zone_type", ZoneType.OBSTACLE)
+		var i = -1
 		for kart in karts:
+			i += 1
 			var diff = zone.position - kart.position
 			diff.y = 0.0
 			if diff.length() >= 30.0:
@@ -230,9 +236,15 @@ func apply_zone_effects() -> void:
 
 			if zone_type == ZoneType.DASH:
 				var forward = - kart.transform.basis.z
-				kart.power += forward * 0.5
+				if i == 0:
+					kart.power += forward * 0.3
+				else:
+					kart.power += forward * 0.3
 			elif zone_type == ZoneType.OBSTACLE:
-				kart.power *= 0.9
+				if i == 0:
+					kart.power *= 0.9
+				else:
+					kart.power *= 0.95
 
 func set_point_in_out(curve: Curve3D, index: int, point: Vector3):
 	curve.set_point_in(index, point)
