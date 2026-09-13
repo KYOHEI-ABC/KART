@@ -6,8 +6,20 @@ var follower: PathFollow3D
 var path: Path3D
 
 var power: Vector3 = Vector3.ZERO
+var model_roll_angle: float = 0.0
+
+const MODEL_ROLL_LIMIT_DEG: float = 60.0
+
+const MODELS: Array[PackedScene] = [
+	preload("res://assets/kart-oobi.glb"),
+	preload("res://assets/kart-oodi.glb"),
+	preload("res://assets/kart-ooli.glb"),
+	preload("res://assets/kart-oopi.glb"),
+	preload("res://assets/kart-oozi.glb"),
+]
 
 static func create_box_mesh(color: Color) -> MeshInstance3D:
+	return
 	var mesh_instance = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
 	box_mesh.size = Vector3(8, 8, 16)
@@ -20,15 +32,16 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 func check_course_out() -> void:
 	var closest_pt = path.curve.get_closest_point(position)
 	closest_pt.y = 0.0
-	var mat = (get_child(0) as MeshInstance3D).material_override as StandardMaterial3D
+	# var mat = (get_child(0) as MeshInstance3D).material_override as StandardMaterial3D
+	# print(get_child(0))
 	if (position - closest_pt).length() > 64:
-		mat.albedo_color.v = 0.45
+	# 	mat.albedo_color.v = 0.45
 		if index == 0:
 			power = power.lerp(Vector3.ZERO, 0.1)
 		else:
 			power = power.lerp(Vector3.ZERO, 0.03)
-	else:
-		mat.albedo_color.v = 0.9
+	# else:
+	# 	mat.albedo_color.v = 0.9
 
 func resolve_collision(others: Array[Kart]) -> void:
 	for other in others:
@@ -47,7 +60,13 @@ func resolve_collision(others: Array[Kart]) -> void:
 func _init(index: int, path: Path3D):
 	self.index = index
 	self.path = path
-	add_child(create_box_mesh(Color.from_hsv(index / 8.0, 0.4, 0.9)))
+
+	add_child(MODELS[index % 5].instantiate())
+	get_child(0).scale = Vector3(8, 8, 8)
+	get_child(0).rotation_degrees.y = 180
+
+	# add_child(create_box_mesh(Color.from_hsv(index / 8.0, 0.4, 0.9)))
+
 
 	if index == 0:
 		return
@@ -74,15 +93,20 @@ func move_forward() -> void:
 	position += power
 	power *= 0.99
 
+	model_roll_angle = lerp(model_roll_angle, 0.0, 0.03)
+	get_child(0).rotation_degrees.z = model_roll_angle
+
 
 func rotate_left(amount: float = 1.0) -> void:
 	self.rotation_degrees.y += amount
 	power = power.lerp(Vector3.ZERO, 0.03)
+	model_roll_angle = lerp(model_roll_angle, -MODEL_ROLL_LIMIT_DEG, 0.035)
 
 
 func rotate_right(amount: float = 1.0) -> void:
 	self.rotation_degrees.y -= amount
 	power = power.lerp(Vector3.ZERO, 0.03)
+	model_roll_angle = lerp(model_roll_angle, MODEL_ROLL_LIMIT_DEG, 0.035)
 
 func rotate_toward_direction(target_direction: Vector3, step: float = 1.0) -> void:
 	if target_direction.length() == 0.0:
@@ -105,9 +129,9 @@ func adjust_speed(others: Array[Kart]) -> void:
 	elif diff < -0.5:
 		diff += 1.0
 
-	if diff > 0.05:
+	if diff > 0.03:
 		# ライバルが遅れている
-		follower.progress_ratio = path.curve.get_closest_offset(others[0].position) / total_length - 0.05
+		follower.progress_ratio = path.curve.get_closest_offset(others[0].position) / total_length - 0.03
 		position = follower.position
 	elif diff < -0.3:
 		# ライバルが先行

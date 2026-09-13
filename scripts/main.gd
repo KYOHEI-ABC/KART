@@ -71,11 +71,11 @@ static func create_road_mesh(curve: Curve3D, road_texture: Texture2D = null) -> 
 	return mesh_instance_3d
 
 func _ready() -> void:
-	RenderingServer.set_default_clear_color(Color.from_hsv(120 / 360.0, 0.8, 0.4))
-
+	# RenderingServer.set_default_clear_color(Color.from_hsv(120 / 360.0, 0.8, 0.4))
 	camera = Camera3D.new()
 	camera.position.y = 1024
 	camera.rotation_degrees.x = -90
+	camera.fov = 15
 
 	add_child(camera)
 
@@ -87,7 +87,7 @@ func _ready() -> void:
 	mesh_instance.material_override.albedo_texture = load("res://assets/grass_carried.png")
 	mesh_instance.material_override.uv1_scale = Vector3(64, 64, 1)
 	mesh_instance.material_override.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	mesh_instance.position.y = -0.01
+	mesh_instance.position.y = -0.1
 
 
 	var light = DirectionalLight3D.new()
@@ -175,9 +175,9 @@ func _process(delta: float) -> void:
 	for kart in karts:
 		kart.resolve_collision(karts)
 
-	var target_position = karts[0].position + karts[0].transform.basis.z * 64 + Vector3(0, 64, 0)
-	camera.position = camera.position.lerp(target_position, 10.0 * delta)
-	camera.look_at(karts[0].position + Vector3(0, 1.0, 0), Vector3.UP)
+	var target_position = karts[0].position + karts[0].transform.basis.z * 128 + Vector3(0, 32, 0)
+	camera.position = camera.position.lerp(target_position, 5.0 * delta)
+	camera.look_at(karts[0].position + Vector3(0, 8.0, 0), Vector3.UP)
 
 
 static func create_zone_mesh(color: Color) -> MeshInstance3D:
