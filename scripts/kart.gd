@@ -18,8 +18,10 @@ const MODELS: Array[PackedScene] = [
 	preload("res://assets/kart.glb"),
 ]
 
-const MARIO: Array[PackedScene] = [
+const CHARA_MODELS: Array[PackedScene] = [
 	preload("res://assets/mario.glb"),
+	preload("res://assets/bowser.glb"),
+
 ]
 
 static func create_box_mesh(color: Color) -> MeshInstance3D:
@@ -76,10 +78,17 @@ func _init(index: int, path: Path3D):
 	mesh_instance.set_surface_override_material(0, unique_mat)
 	# add_child(create_box_mesh(Color.from_hsv(index / 8.0, 0.4, 0.9)))
 
-	var mario_model = MARIO[0].instantiate()
-	model.add_child(mario_model)
-	mario_model.scale = Vector3(2, 2, 2)
+	var chara_model = null
 
+	if index == 0:
+		chara_model = CHARA_MODELS[0].instantiate()
+		chara_model.scale = Vector3(2, 2, 2)
+	else:
+		chara_model = CHARA_MODELS[1].instantiate()
+		chara_model.scale = Vector3(0.05, 0.05, 0.05)
+		chara_model.position = Vector3(0, 0.5, 0.18)
+
+	model.add_child(chara_model)
 
 	if index == 0:
 		return
