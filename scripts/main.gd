@@ -79,6 +79,13 @@ func _ready() -> void:
 
 	add_child(camera)
 
+	setup_n64_environment()
+	# var light = DirectionalLight3D.new()
+	# light.position = Vector3(128, 128, 0)
+	# light.rotation_degrees = Vector3(-45, -45, 0)
+	# light.shadow_enabled = true
+	# add_child(light)
+
 	var mesh_instance = MeshInstance3D.new()
 	add_child(mesh_instance)
 	mesh_instance.mesh = PlaneMesh.new()
@@ -89,12 +96,6 @@ func _ready() -> void:
 	mesh_instance.material_override.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	mesh_instance.position.y = -0.1
 
-
-	var light = DirectionalLight3D.new()
-	light.position = Vector3(128, 128, 0)
-	light.rotation_degrees = Vector3(-45, -45, 0)
-	# light.shadow_enabled = true
-	add_child(light)
 
 	var path = Path3D.new()
 	add_child(path)
@@ -249,3 +250,39 @@ func apply_zone_effects() -> void:
 func set_point_in_out(curve: Curve3D, index: int, point: Vector3):
 	curve.set_point_in(index, point)
 	curve.set_point_out(index, -point)
+
+
+func setup_n64_environment() -> void:
+	# 既存の WorldEnvironment があれば取得、無ければ新規作成
+	var world_env = get_node_or_null("WorldEnvironment") as WorldEnvironment
+	if not world_env:
+		world_env = WorldEnvironment.new()
+		world_env.name = "WorldEnvironment"
+		add_child(world_env)
+
+	# Environment リソースの作成
+	var env = Environment.new()
+
+	# --- 1. 背景（Sky/Color）設定 ---
+	# N64風の単色背景にする場合（例: 空色）
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0.4, 0.6, 0.9) # 好みの背景色
+
+	# --- 2. 環境光（Ambient Light）で底上げ ---
+	# 影の黒つぶれを防ぎ、全体を自然に明るくする設定
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.65, 0.65, 0.65) # 全体にかける環境光の色
+	env.ambient_light_energy = 3 # 環境光の強さ（0.8〜1.2程度で調整）
+
+	# --- 3. トーンマップ（Tonemap）でレトロ発色 ---
+	# 現代的なハイライト表現をオフにし、フラットな発色にする
+	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	env.tonemap_exposure = 1.0
+
+	# --- 4. フォグ（霧）設定（N64特有の描画限界フォグを演出したい場合） ---
+	env.fog_enabled = true
+	env.fog_light_color = Color(0.5, 0.6, 0.7)
+	env.fog_density = 0.0003
+
+	# 作成した Environment をセット
+	world_env.environment = env

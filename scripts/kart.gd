@@ -21,6 +21,7 @@ const MODELS: Array[PackedScene] = [
 const CHARA_MODELS: Array[PackedScene] = [
 	preload("res://assets/mario.glb"),
 	preload("res://assets/bowser.glb"),
+	preload("res://assets/goomba.glb"),
 
 ]
 
@@ -83,10 +84,16 @@ func _init(index: int, path: Path3D):
 	if index == 0:
 		chara_model = CHARA_MODELS[0].instantiate()
 		chara_model.scale = Vector3(2, 2, 2)
-	else:
+	elif index == 1:
 		chara_model = CHARA_MODELS[1].instantiate()
 		chara_model.scale = Vector3(0.05, 0.05, 0.05)
 		chara_model.position = Vector3(0, 0.5, 0.18)
+	else:
+		chara_model = CHARA_MODELS[2].instantiate()
+		chara_model.scale = Vector3(0.03, 0.03, 0.03)
+		chara_model.position = Vector3(0, 0.2, 0.0)
+
+	set_shading_per_vertex(chara_model)
 
 	model.add_child(chara_model)
 
@@ -100,6 +107,25 @@ func _init(index: int, path: Path3D):
 	self.position = follower.position
 	follower.progress_ratio = 0.03
 
+
+func set_shading_per_vertex(node: Node) -> void:
+	if node is MeshInstance3D:
+		for i in node.get_surface_override_material_count():
+			var mat = node.get_active_material(i)
+			if mat is BaseMaterial3D:
+				# 共通マテリアルに影響を出さないよう duplicate() する
+				var new_mat = mat.duplicate() as BaseMaterial3D
+				new_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+				# new_mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
+
+				# スペキュラ（ツヤ）もカット
+				new_mat.roughness = 1.0
+				new_mat.metallic_specular = 0.0
+
+				node.set_surface_override_material(i, new_mat)
+
+	for child in node.get_children():
+		set_shading_per_vertex(child)
 
 func bot() -> void:
 	follower.progress = path.curve.get_closest_offset(position) + path.curve.get_baked_length() * 0.01
