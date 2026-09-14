@@ -22,6 +22,7 @@ const CHARA_MODELS: Array[PackedScene] = [
 	preload("res://assets/mario.glb"),
 	preload("res://assets/bowser.glb"),
 	preload("res://assets/goomba.glb"),
+	preload("res://assets/KoopaTroopa.glb"),
 
 ]
 
@@ -88,9 +89,13 @@ func _init(index: int, path: Path3D):
 		chara_model = CHARA_MODELS[1].instantiate()
 		chara_model.scale = Vector3(0.05, 0.05, 0.05)
 		chara_model.position = Vector3(0, 0.5, 0.18)
-	else:
+	elif index == 2 or index == 3 or index == 4:
 		chara_model = CHARA_MODELS[2].instantiate()
 		chara_model.scale = Vector3(0.03, 0.03, 0.03)
+		chara_model.position = Vector3(0, 0.2, 0.0)
+	else:
+		chara_model = CHARA_MODELS[3].instantiate()
+		chara_model.scale = Vector3(0.05, 0.05, 0.05)
 		chara_model.position = Vector3(0, 0.2, 0.0)
 
 	set_shading_per_vertex(chara_model)
