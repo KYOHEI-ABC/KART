@@ -93,7 +93,7 @@ func _ready() -> void:
 	var light = DirectionalLight3D.new()
 	light.position = Vector3(128, 128, 0)
 	light.rotation_degrees = Vector3(-45, -45, 0)
-	light.shadow_enabled = true
+	# light.shadow_enabled = true
 	add_child(light)
 
 	var path = Path3D.new()

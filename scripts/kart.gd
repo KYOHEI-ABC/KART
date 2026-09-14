@@ -11,11 +11,15 @@ var model_roll_angle: float = 0.0
 const MODEL_ROLL_LIMIT_DEG: float = 60.0
 
 const MODELS: Array[PackedScene] = [
-	preload("res://assets/kart-oobi.glb"),
-	preload("res://assets/kart-oodi.glb"),
-	preload("res://assets/kart-ooli.glb"),
-	preload("res://assets/kart-oopi.glb"),
-	preload("res://assets/kart-oozi.glb"),
+	preload("res://assets/kart.glb"),
+	preload("res://assets/kart.glb"),
+	preload("res://assets/kart.glb"),
+	preload("res://assets/kart.glb"),
+	preload("res://assets/kart.glb"),
+]
+
+const MARIO: Array[PackedScene] = [
+	preload("res://assets/mario.glb"),
 ]
 
 static func create_box_mesh(color: Color) -> MeshInstance3D:
@@ -54,18 +58,27 @@ func resolve_collision(others: Array[Kart]) -> void:
 			continue
 
 		var push_dir = diff.normalized()
-		power += push_dir * 0.1
-		other.power -= push_dir * 0.1
+		power += push_dir * 0.3
+		other.power -= push_dir * 0.3
 
 func _init(index: int, path: Path3D):
 	self.index = index
 	self.path = path
 
-	add_child(MODELS[index % 5].instantiate())
-	get_child(0).scale = Vector3(8, 8, 8)
-	get_child(0).rotation_degrees.y = 180
-
+	var model = MODELS[index % 5].instantiate()
+	add_child(model)
+	model.scale = Vector3(12, 12, 12)
+	model.rotation_degrees.y = 180
+	var mesh_instance = model.get_child(1) as MeshInstance3D
+	var original_mat = mesh_instance.mesh.surface_get_material(0)
+	var unique_mat = original_mat.duplicate() as StandardMaterial3D
+	unique_mat.albedo_color = Color.from_hsv(index / 9.0, 0.9, 0.8)
+	mesh_instance.set_surface_override_material(0, unique_mat)
 	# add_child(create_box_mesh(Color.from_hsv(index / 8.0, 0.4, 0.9)))
+
+	var mario_model = MARIO[0].instantiate()
+	model.add_child(mario_model)
+	mario_model.scale = Vector3(2, 2, 2)
 
 
 	if index == 0:
