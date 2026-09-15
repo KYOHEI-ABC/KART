@@ -3,18 +3,22 @@ extends Node3D
 
 var index: int
 var velocity: Vector3 = Vector3.ZERO
+
+var path: Path3D
 var bot: Bot = null
+
 
 var model: Node3D
 var model_roll_angle: float = 0.0
 
 func _init(i: int, path: Path3D):
 	self.index = i
+	self.path = path
 
 	position = path.curve.get_baked_points()[0]
 
 	if not index == 0:
-		bot = Bot.new(self, path)
+		bot = Bot.new(self)
 
 	model = Graphic.create_box_mesh(Color.from_hsv(index / 8.0, 1, 0.5))
 	add_child(model)
@@ -36,6 +40,8 @@ func process(karts: Array[Kart]) -> void:
 		bot.process(karts)
 
 	collision(karts)
+
+	check_course_out()
 
 	model.rotation_degrees.z = model.rotation_degrees.z * 0.97
 
@@ -61,3 +67,15 @@ func collision(karts: Array[Kart]) -> void:
 
 		velocity += diff.normalized() * 0.3
 		k.velocity -= diff.normalized() * 0.3
+
+func check_course_out() -> void:
+	var closest_pt = path.curve.get_closest_point(position)
+	closest_pt.y = 0.0
+	if (position - closest_pt).length() > 64:
+		if index == 0:
+			velocity = velocity.lerp(Vector3.ZERO, 0.1)
+		else:
+			velocity = velocity.lerp(Vector3.ZERO, 0.03)
+		Graphic.set_material_color(model, 0.25)
+	else:
+		Graphic.set_material_color(model, 0.5)

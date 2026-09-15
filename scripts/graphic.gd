@@ -81,6 +81,11 @@ static func set_albedo_color(mesh: MeshInstance3D, color: Color) -> void:
 	mat.albedo_color = color
 	mesh.set_surface_override_material(0, mat)
 
+static func set_material_color(mesh: MeshInstance3D, v: float) -> void:
+	var mat = mesh.material_override as StandardMaterial3D
+	mat.albedo_color.v = v
+
+
 static func create_ground_mesh() -> MeshInstance3D:
 	var mesh = MeshInstance3D.new()
 	mesh.mesh = PlaneMesh.new()
