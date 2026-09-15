@@ -1,107 +1,32 @@
 class_name Main
 extends Node
 
-enum ZoneType {
-	DASH,
-	OBSTACLE,
-}
+static var WINDOW: Vector2 = Vector2(
+	ProjectSettings.get_setting("display/window/size/viewport_width"),
+	ProjectSettings.get_setting("display/window/size/viewport_height")
+)
+
 
 var camera: Camera3D
 
 var karts: Array[Kart] = []
-var zones: Array[Node3D] = []
-
-static func create_road_mesh(curve: Curve3D, road_texture: Texture2D = null) -> MeshInstance3D:
-	var mesh_instance_3d = MeshInstance3D.new()
-	var st = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
-
-	var road_width_3d: float = 128.0
-	var half_w = road_width_3d * 0.5
-	var baked_points = curve.get_baked_points()
-
-	# UVの進行方向（V軸）のタイリング制御用
-	var accumulated_distance: float = 0.0
-	var texture_scale: float = 1.0 / road_width_3d # テクスチャの比率調整用
-
-	for i in range(baked_points.size()):
-		var current = baked_points[i]
-		var next_pt = baked_points[(i + 1) % baked_points.size()]
-		var prev_pt = baked_points[(i - 1 + baked_points.size()) % baked_points.size()]
-		var dir = (next_pt - prev_pt).normalized()
-		var side = dir.cross(Vector3.UP).normalized()
-
-		# 前のポイントからの移動距離を加算
-		if i > 0:
-			accumulated_distance += current.distance_to(baked_points[i - 1])
-
-		var v_coord = accumulated_distance * texture_scale
-
-		# --- 左側頂点 ---
-		# st.set_color(Color(0.5, 0.5, 0.5))
-		st.set_uv(Vector2(0.0, v_coord)) # U=0 (左端)
-		st.add_vertex(current - side * half_w)
-
-		# --- 右側頂点 ---
-		# st.set_color(Color(0.5, 0.5, 0.5))
-		st.set_uv(Vector2(1.0, v_coord)) # U=1 (右端)
-		st.add_vertex(current + side * half_w)
-
-	var array_mesh = st.commit()
-	mesh_instance_3d.mesh = array_mesh
-
-	# マテリアルの設定
-	var road_mat = StandardMaterial3D.new()
-	road_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	road_mat.vertex_color_use_as_albedo = true
-	road_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-
-	road_texture = load("res://assets/stone.png")
-	road_mat.uv1_scale = Vector3(4, 4, 1)
-	road_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-
-	# テクスチャが渡されている場合は適用
-	if road_texture:
-		road_mat.albedo_texture = road_texture
-		# リピート描画を有効化（Godot 4のStandardMaterial3DではデフォルトでTexture Repeatは有効）
-		road_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-
-	mesh_instance_3d.material_override = road_mat
-
-	return mesh_instance_3d
 
 func _ready() -> void:
-	# RenderingServer.set_default_clear_color(Color.from_hsv(120 / 360.0, 0.8, 0.4))
 	camera = Camera3D.new()
-	camera.position.y = 1024
-	camera.rotation_degrees.x = -90
-	camera.fov = 15
-
 	add_child(camera)
+	camera.position.y = 512
+	camera.rotation_degrees.x = -90
+	camera.fov = 45
 
-	setup_n64_environment()
-	# var light = DirectionalLight3D.new()
-	# light.position = Vector3(128, 128, 0)
-	# light.rotation_degrees = Vector3(-45, -45, 0)
-	# light.shadow_enabled = true
-	# add_child(light)
-
-	var mesh_instance = MeshInstance3D.new()
-	add_child(mesh_instance)
-	mesh_instance.mesh = PlaneMesh.new()
-	mesh_instance.mesh.size = Vector2(1024 * 4, 1024 * 4)
-	mesh_instance.material_override = StandardMaterial3D.new()
-	mesh_instance.material_override.albedo_texture = load("res://assets/grass_carried.png")
-	mesh_instance.material_override.uv1_scale = Vector3(64, 64, 1)
-	mesh_instance.material_override.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	mesh_instance.position.y = -0.1
-
+	var ground = Graphic.create_ground_mesh()
+	add_child(ground)
+	ground.position.y = -0.01
 
 	var path = Path3D.new()
 	add_child(path)
 	path.curve = Curve3D.new()
 
-	var points: Array[Vector3] = [
+	var course_points: Array[Vector3] = [
 		Vector3(100, 0, 0),
 		Vector3(0, 0, -500),
 		Vector3(-500, 0, -500),
@@ -110,179 +35,50 @@ func _ready() -> void:
 		Vector3(0, 0, 500),
 	]
 
-	karts.append(Kart.new(0, path))
-	add_child(karts[0])
+	for course_point in course_points:
+		path.curve.add_point(course_point)
+	path.curve.add_point(course_points[0])
 
-	karts[0].position = points[0]
+	var p = 100
+	set_point_in_out(path.curve, 1, Vector3(p, 0, p))
+	set_point_in_out(path.curve, 2, Vector3(p, 0, -p))
+	set_point_in_out(path.curve, 4, Vector3(-p, 0, -p))
+	set_point_in_out(path.curve, 5, Vector3(-p, 0, p))
 
-	for point in points:
-		path.curve.add_point(point)
-	path.curve.add_point(points[0])
+	path.curve.bake_interval = path.curve.get_baked_length() * 0.03
+	add_child(Graphic.create_road_mesh(path.curve))
 
-	var c = 100
-	set_point_in_out(path.curve, 1, Vector3(c, 0, c))
-	set_point_in_out(path.curve, 2, Vector3(c, 0, -c))
-	set_point_in_out(path.curve, 4, Vector3(-c, 0, -c))
-	set_point_in_out(path.curve, 5, Vector3(-c, 0, c))
 
-	for i in range(1, 8):
+	for i in range(0, 4):
 		karts.append(Kart.new(i, path))
 		add_child(karts[-1])
 
-	path.curve.bake_interval = 30
-	var mesh_instance_3d = Main.create_road_mesh(path.curve)
-	add_child(mesh_instance_3d)
-	mesh_instance_3d.position.y = 0.01
+	add_child(Graphic.setup_world_environment())
 
-	spawn_zones(path.curve, 8, Color.from_hsv(120 / 360.0, 0.9, 0.9), ZoneType.DASH)
-	spawn_zones(path.curve, 8, Color.from_hsv(0, 0.9, 0.9), ZoneType.OBSTACLE)
+	add_child(Graphic.setup_directional_light())
 
 
-func _process(delta: float) -> void:
-	var screen_width = get_viewport().get_visible_rect().size.x
-
+func _process(_delta: float) -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		var touch_position = get_viewport().get_mouse_position()
-
-		# 画面の左半分を押している場合
-		if touch_position.x < screen_width / 2.0:
-			karts[0].rotate_left(1.0)
-		# 画面の右半分を押している場合
+		if get_viewport().get_mouse_position().x < WINDOW.x / 2.0:
+			karts[0].turn(true)
 		else:
-			karts[0].rotate_right(1.0)
+			karts[0].turn(false)
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_SHIFT):
+		karts[0].turn(true)
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_ENTER):
+		karts[0].turn(false)
 
-	# PCでのテスト用に A/D キーでも動くように残す場合
-	if Input.is_key_pressed(KEY_A):
-		karts[0].rotate_left(1.0)
-	if Input.is_key_pressed(KEY_D):
-		karts[0].rotate_right(1.0)
-	if Input.is_key_pressed(KEY_SHIFT):
-		karts[0].rotate_left(1.0)
-	if Input.is_key_pressed(KEY_ENTER):
-		karts[0].rotate_right(1.0)
-
-	apply_zone_effects()
-
-	karts[0].move_forward()
 
 	for kart in karts:
-		kart.check_course_out()
+		kart.process(karts)
 
-	for i in range(1, karts.size()):
-		karts[i].bot()
-
-		karts[i].adjust_speed(karts)
-
-	for kart in karts:
-		kart.resolve_collision(karts)
-
-	var target_position = karts[0].position + karts[0].transform.basis.z * 128 + Vector3(0, 32, 0)
-	camera.position = camera.position.lerp(target_position, 5.0 * delta)
-	camera.look_at(karts[0].position + Vector3(0, 8.0, 0), Vector3.UP)
+	var camera_target_position = karts[0].position + karts[0].velocity.normalized() * -32 + Vector3(0, 16, 0)
+	camera.position = camera.position.lerp(camera_target_position, 0.1)
+	# camera.position = camera_target_position
+	camera.look_at(karts[0].position + Vector3(0, 8, 0), Vector3.UP)
 
 
-static func create_zone_mesh(color: Color) -> MeshInstance3D:
-	var zone_mesh = MeshInstance3D.new()
-	var box_mesh = BoxMesh.new()
-	box_mesh.size = Vector3(30.0, 1, 30.0)
-	zone_mesh.mesh = box_mesh
-
-	var material = StandardMaterial3D.new()
-	material.albedo_color = color
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	zone_mesh.material_override = material
-	return zone_mesh
-
-
-func spawn_zones(curve: Curve3D, count: int, color: Color, zone_type: int) -> void:
-	var points = curve.get_baked_points()
-	if points.is_empty():
-		return
-
-	for i in range(count):
-		var idx = randi() % points.size()
-		var point = points[idx]
-		point.y = 0.0
-
-		var prev_idx = (idx - 1 + points.size()) % points.size()
-		var next_idx = (idx + 1) % points.size()
-		var tangent = (points[next_idx] - points[prev_idx]).normalized()
-		if tangent.length() == 0.0:
-			tangent = Vector3.FORWARD
-
-		var side = tangent.cross(Vector3.UP).normalized()
-		var offset_distance = randf_range(-64, 64)
-		point += side * offset_distance
-
-		var zone = Node3D.new()
-		zone.position = point
-		zone.look_at_from_position(point, point + tangent, Vector3.UP)
-		zone.set_meta("zone_type", zone_type)
-		var mesh = Main.create_zone_mesh(color)
-		zone.add_child(mesh)
-		add_child(zone)
-		zones.append(zone)
-
-
-func apply_zone_effects() -> void:
-	for zone in zones:
-		var zone_type = zone.get_meta("zone_type", ZoneType.OBSTACLE)
-		var i = -1
-		for kart in karts:
-			i += 1
-			var diff = zone.position - kart.position
-			diff.y = 0.0
-			if diff.length() >= 30.0:
-				continue
-
-			if zone_type == ZoneType.DASH:
-				var forward = - kart.transform.basis.z
-				if i == 0:
-					kart.power += forward * 0.3
-				else:
-					kart.power += forward * 0.3
-			elif zone_type == ZoneType.OBSTACLE:
-				if i == 0:
-					kart.power *= 0.9
-				else:
-					kart.power *= 0.95
-
-func set_point_in_out(curve: Curve3D, index: int, point: Vector3):
-	curve.set_point_in(index, point)
-	curve.set_point_out(index, -point)
-
-
-func setup_n64_environment() -> void:
-	# 既存の WorldEnvironment があれば取得、無ければ新規作成
-	var world_env = get_node_or_null("WorldEnvironment") as WorldEnvironment
-	if not world_env:
-		world_env = WorldEnvironment.new()
-		world_env.name = "WorldEnvironment"
-		add_child(world_env)
-
-	# Environment リソースの作成
-	var env = Environment.new()
-
-	# --- 1. 背景（Sky/Color）設定 ---
-	# N64風の単色背景にする場合（例: 空色）
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.4, 0.6, 0.9) # 好みの背景色
-
-	# --- 2. 環境光（Ambient Light）で底上げ ---
-	# 影の黒つぶれを防ぎ、全体を自然に明るくする設定
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.65, 0.65, 0.65) # 全体にかける環境光の色
-	env.ambient_light_energy = 3 # 環境光の強さ（0.8〜1.2程度で調整）
-
-	# --- 3. トーンマップ（Tonemap）でレトロ発色 ---
-	# 現代的なハイライト表現をオフにし、フラットな発色にする
-	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
-	env.tonemap_exposure = 1.0
-
-	# --- 4. フォグ（霧）設定（N64特有の描画限界フォグを演出したい場合） ---
-	env.fog_enabled = true
-	env.fog_light_color = Color(0.5, 0.6, 0.7)
-	env.fog_density = 0.0003
-
-	# 作成した Environment をセット
-	world_env.environment = env
+func set_point_in_out(curve: Curve3D, i: int, point: Vector3):
+	curve.set_point_in(i, point)
+	curve.set_point_out(i, -point)
