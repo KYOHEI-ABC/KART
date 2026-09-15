@@ -3,6 +3,11 @@ class_name Graphic
 
 const MODELS: Array[PackedScene] = [
 	preload("res://assets/Mario/mario.glb"),
+	preload("res://assets/Luigi/luigi.glb"),
+	preload("res://assets/Peach/peach.glb"),
+	preload("res://assets/Yoshi/yoshi.glb"),
+	preload("res://assets/Toad/toad.glb"),
+	preload("res://assets/Bowser/bowser.glb"),
 ]
 
 static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
@@ -81,10 +86,14 @@ static func set_albedo_color(mesh: MeshInstance3D, color: Color) -> void:
 	mat.albedo_color = color
 	mesh.set_surface_override_material(0, mat)
 
-static func set_material_color(mesh: MeshInstance3D, v: float) -> void:
+
+static func set_material_color_v(mesh: MeshInstance3D, v: float) -> void:
 	var mat = mesh.material_override as StandardMaterial3D
 	mat.albedo_color.v = v
 
+static func set_material_color(mesh: MeshInstance3D, color: Color) -> void:
+	var mat = mesh.material_override as StandardMaterial3D
+	mat.albedo_color = color
 
 static func create_ground_mesh() -> MeshInstance3D:
 	var mesh = MeshInstance3D.new()

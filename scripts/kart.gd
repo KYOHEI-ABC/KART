@@ -23,11 +23,41 @@ func _init(i: int, path: Path3D):
 	model = Graphic.create_box_mesh(Color.from_hsv(index / 8.0, 1, 0.5))
 	add_child(model)
 
-	var character_model = Graphic.MODELS[0].instantiate()
-	model.add_child(character_model)
-	character_model.scale = Vector3(0.05, 0.05, 0.05)
-	character_model.position.y = -2.4
+	var character_model = Graphic.MODELS[i].instantiate()
+	match index:
+		0:
+			character_model.scale = Vector3(0.05, 0.05, 0.05)
+			character_model.position.y = -2.4
+			Graphic.set_material_color(model, Color.from_hsv(0, 1, 1))
+		1:
+			character_model.scale = Vector3(18, 18, 18)
+			character_model.position.y = -2
+			Graphic.set_material_color(model, Color.from_hsv(140 / 360.0, 1, 1))
+		2:
+			character_model.scale = Vector3(5, 5, 5)
+			character_model.position.y = -3.5
+			character_model.rotation_degrees = Vector3(90, 0, 0)
+			Graphic.set_material_color(model, Color.from_hsv(330 / 360.0, 0.8, 1))
+		3:
+			character_model.scale = Vector3(5, 5, 5)
+			character_model.position.y = -3.5
+			character_model.rotation_degrees = Vector3(90, 0, 0)
+			Graphic.set_material_color(model, Color.from_hsv(120 / 360.0, 1, 1))
+		4:
+			character_model.scale = Vector3(5, 5, 5)
+			character_model.position.y = 0.5
+			character_model.rotation_degrees = Vector3(90, 0, 0)
+			Graphic.set_material_color(model, Color.from_hsv(240 / 360.0, 1, 1))
+		5:
+			character_model.scale = Vector3(2.5, 2.5, 2.5)
+			character_model.position.y = -2.2
+			Graphic.set_material_color(model, Color.from_hsv(60 / 360.0, 1, 1))
 
+		_:
+			pass
+
+
+	model.add_child(character_model)
 	model.position.y = 2
 	model.rotation_degrees.y = 180
 
@@ -45,14 +75,11 @@ func process(karts: Array[Kart]) -> void:
 
 	model.rotation_degrees.z = model.rotation_degrees.z * 0.97
 
-func turn(left: bool) -> void:
-	var degree = 0.5
-	if not left:
-		degree *= -1
+func turn(degree: float) -> void:
 	self.rotation_degrees.y += degree
 	velocity = velocity.lerp(Vector3.ZERO, 0.03)
 
-	model.rotation_degrees.z += -1 if left else 1
+	model.rotation_degrees.z += -1 if degree > 0 else 1
 
 
 func collision(karts: Array[Kart]) -> void:
@@ -65,8 +92,8 @@ func collision(karts: Array[Kart]) -> void:
 		if diff.length() == 0.0 or diff.length() >= 8.0:
 			continue
 
-		velocity += diff.normalized() * 0.3
-		k.velocity -= diff.normalized() * 0.3
+		# velocity += diff.normalized() * 0.08
+		k.velocity -= diff.normalized() * 0.08
 
 func check_course_out() -> void:
 	var closest_pt = path.curve.get_closest_point(position)
@@ -76,6 +103,6 @@ func check_course_out() -> void:
 			velocity = velocity.lerp(Vector3.ZERO, 0.1)
 		else:
 			velocity = velocity.lerp(Vector3.ZERO, 0.03)
-		Graphic.set_material_color(model, 0.25)
+		Graphic.set_material_color_v(model, 0.25)
 	else:
-		Graphic.set_material_color(model, 0.5)
+		Graphic.set_material_color_v(model, 0.5)

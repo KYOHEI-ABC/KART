@@ -17,7 +17,7 @@ func _ready() -> void:
 	add_child(camera)
 	camera.position.y = 512
 	camera.rotation_degrees.x = -90
-	camera.fov = 45
+	camera.fov = 30
 
 	var ground = Graphic.create_ground_mesh()
 	add_child(ground)
@@ -50,7 +50,7 @@ func _ready() -> void:
 	add_child(Graphic.create_road_mesh(path.curve))
 
 
-	for i in range(0, 4):
+	for i in range(0, 6):
 		karts.append(Kart.new(i, path))
 		add_child(karts[-1])
 
@@ -58,12 +58,12 @@ func _ready() -> void:
 
 	add_child(Graphic.setup_directional_light())
 
-	for i in range(12):
+	for i in range(8):
 		zones.append(Zone.new(12, 1.1))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
 
-	for i in range(12):
+	for i in range(8):
 		zones.append(Zone.new(12, 0.9))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
@@ -75,9 +75,9 @@ func _process(_delta: float) -> void:
 		else:
 			karts[0].turn(false)
 	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_SHIFT):
-		karts[0].turn(true)
+		karts[0].turn(0.5)
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_ENTER):
-		karts[0].turn(false)
+		karts[0].turn(-0.5)
 
 
 	for kart in karts:
