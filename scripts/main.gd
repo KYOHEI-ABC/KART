@@ -12,6 +12,8 @@ var camera: Camera3D
 var karts: Array[Kart] = []
 var zones: Array[Zone] = []
 
+@export var path2D: Path2D = null
+
 func _ready() -> void:
 	camera = Camera3D.new()
 	add_child(camera)
@@ -36,15 +38,23 @@ func _ready() -> void:
 		Vector3(0, 0, 500),
 	]
 
-	for course_point in course_points:
-		path.curve.add_point(course_point)
-	path.curve.add_point(course_points[0])
+	if path2D:
+		for i in range(path2D.curve.point_count):
+			var p = path2D.curve.get_point_position(i)
+			path.curve.add_point(Vector3(p.x, 0, p.y))
+		var p = path2D.curve.get_point_position(0)
+		path.curve.add_point(Vector3(p.x, 0, p.y))
 
-	var p = 100
-	set_point_in_out(path.curve, 1, Vector3(p, 0, p))
-	set_point_in_out(path.curve, 2, Vector3(p, 0, -p))
-	set_point_in_out(path.curve, 4, Vector3(-p, 0, -p))
-	set_point_in_out(path.curve, 5, Vector3(-p, 0, p))
+	else:
+		for course_point in course_points:
+			path.curve.add_point(course_point)
+		path.curve.add_point(course_points[0])
+
+		var p = 100
+		set_point_in_out(path.curve, 1, Vector3(p, 0, p))
+		set_point_in_out(path.curve, 2, Vector3(p, 0, -p))
+		set_point_in_out(path.curve, 4, Vector3(-p, 0, -p))
+		set_point_in_out(path.curve, 5, Vector3(-p, 0, p))
 
 	path.curve.bake_interval = path.curve.get_baked_length() * 0.03
 	add_child(Graphic.create_road_mesh(path.curve))
