@@ -20,10 +20,10 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 		var dir = (next_pt - prev_pt).normalized()
 		var side = dir.cross(Vector3.UP).normalized()
 
-		st.set_color(Color(0.2, 0.2, 0.2))
+		st.set_color(Color.from_hsv(0, 0, randf_range(0.2, 0.4)))
 		st.add_vertex(baked_points[i] - side * road_width * 0.5)
 
-		st.set_color(Color(0.2, 0.2, 0.2))
+		st.set_color(Color.from_hsv(0, 0, randf_range(0.2, 0.4)))
 		st.add_vertex(baked_points[i] + side * road_width * 0.5)
 
 	mesh_instance_3d.mesh = st.commit()
@@ -102,4 +102,20 @@ static func create_box_mesh(color: Color) -> MeshInstance3D:
 	mesh.material_override = StandardMaterial3D.new()
 	mesh.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
 	mesh.material_override.albedo_color = color
+	return mesh
+
+static func create_circle_mesh(radius: float, color: Color) -> MeshInstance3D:
+	var mesh = MeshInstance3D.new()
+	mesh.mesh = CylinderMesh.new()
+
+	mesh.mesh.top_radius = radius
+	mesh.mesh.bottom_radius = radius
+	mesh.mesh.height = 0.1
+	mesh.mesh.radial_segments = 12
+	mesh.mesh.cap_bottom = false
+
+	mesh.material_override = StandardMaterial3D.new()
+	mesh.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
+	mesh.material_override.albedo_color = color
+
 	return mesh

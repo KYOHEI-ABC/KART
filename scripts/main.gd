@@ -10,6 +10,7 @@ static var WINDOW: Vector2 = Vector2(
 var camera: Camera3D
 
 var karts: Array[Kart] = []
+var zones: Array[Zone] = []
 
 func _ready() -> void:
 	camera = Camera3D.new()
@@ -57,6 +58,15 @@ func _ready() -> void:
 
 	add_child(Graphic.setup_directional_light())
 
+	for i in range(12):
+		zones.append(Zone.new(12, 1.1))
+		add_child(zones[-1])
+		zones[-1].position = get_random_points(path)
+
+	for i in range(12):
+		zones.append(Zone.new(12, 0.9))
+		add_child(zones[-1])
+		zones[-1].position = get_random_points(path)
 
 func _process(_delta: float) -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
@@ -73,6 +83,9 @@ func _process(_delta: float) -> void:
 	for kart in karts:
 		kart.process(karts)
 
+	for zone in zones:
+		zone.process(karts)
+
 	var camera_target_position = karts[0].position + karts[0].velocity.normalized() * -32 + Vector3(0, 16, 0)
 	camera.position = camera.position.lerp(camera_target_position, 0.1)
 	# camera.position = camera_target_position
@@ -82,3 +95,13 @@ func _process(_delta: float) -> void:
 func set_point_in_out(curve: Curve3D, i: int, point: Vector3):
 	curve.set_point_in(i, point)
 	curve.set_point_out(i, -point)
+
+func get_random_points(path: Path3D) -> Vector3:
+	var follow = PathFollow3D.new()
+	path.add_child(follow)
+	follow.h_offset = randf_range(-64.0, 64.0)
+	follow.progress_ratio = randf_range(0, 1.0)
+	var position = follow.position
+	path.remove_child(follow)
+	follow.queue_free()
+	return position
