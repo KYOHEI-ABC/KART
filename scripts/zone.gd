@@ -16,4 +16,7 @@ func process(karts: Array[Kart]) -> void:
 		var dist_squared: float = position.distance_squared_to(kart.position)
 
 		if dist_squared <= radius * radius:
-			kart.velocity *= power
+			if kart.index == 0:
+				kart.velocity *= power
+			else:
+				kart.velocity *= power * 1.05

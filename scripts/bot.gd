@@ -37,5 +37,8 @@ func adjust_speed(target: Kart) -> void:
 	if diff > 0.03:
 		follower.progress_ratio = kart.path.curve.get_closest_offset(target.position) / length - 0.03
 		kart.position = follower.position
-	elif diff < -0.1:
+		# kart.velocity *= 1.05
+	elif diff < -0.03:
 		kart.velocity *= 0.99
+	else:
+		kart.velocity *= 1.01
