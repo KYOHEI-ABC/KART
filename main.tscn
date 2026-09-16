@@ -1,6 +1,22 @@
 [gd_scene format=3 uid="uid://btj7e6l14mn80"]
 
 [ext_resource type="Script" uid="uid://dboxug4g43yjg" path="res://scripts/main.gd" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://btxbnadidqomv" path="res://assets/MarioCircuit3.png" id="2_0xm2m"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ig7tw"]
+size = Vector2(1024, 1024)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ig7tw"]
+albedo_texture = ExtResource("2_0xm2m")
+
+[sub_resource type="Curve3D" id="Curve3D_0xm2m"]
 
 [node name="node" type="Node" unique_id=2122252539]
 script = ExtResource("1_ig7tw")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1334178783]
+mesh = SubResource("PlaneMesh_ig7tw")
+surface_material_override/0 = SubResource("StandardMaterial3D_ig7tw")
+
+[node name="Path3D" type="Path3D" parent="." unique_id=944908498]
+curve = SubResource("Curve3D_0xm2m")
