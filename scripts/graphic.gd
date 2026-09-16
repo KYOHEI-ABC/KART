@@ -15,7 +15,7 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
 
-	var road_width: float = 64.0
+	var road_width: float = 96.0
 
 	var baked_points = curve.get_baked_points()
 

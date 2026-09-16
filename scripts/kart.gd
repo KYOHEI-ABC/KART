@@ -98,7 +98,7 @@ func collision(karts: Array[Kart]) -> void:
 func check_course_out() -> void:
 	var closest_pt = path.curve.get_closest_point(position)
 	closest_pt.y = 0.0
-	if (position - closest_pt).length() > 32.0:
+	if (position - closest_pt).length() > 48.0:
 		if index == 0:
 			velocity = velocity.lerp(Vector3.ZERO, 0.1)
 		else:

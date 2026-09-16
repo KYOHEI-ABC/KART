@@ -75,12 +75,12 @@ func _ready() -> void:
 
 	add_child(Graphic.setup_directional_light())
 
-	for i in range(8):
+	for i in range(3):
 		zones.append(Zone.new(8, 1.1))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
 
-	for i in range(8):
+	for i in range(3):
 		zones.append(Zone.new(8, 0.9))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
