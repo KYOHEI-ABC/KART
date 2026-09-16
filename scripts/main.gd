@@ -76,12 +76,12 @@ func _ready() -> void:
 	add_child(Graphic.setup_directional_light())
 
 	for i in range(8):
-		zones.append(Zone.new(12, 1.1))
+		zones.append(Zone.new(8, 1.1))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
 
 	for i in range(8):
-		zones.append(Zone.new(12, 0.9))
+		zones.append(Zone.new(8, 0.9))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
 
@@ -119,7 +119,7 @@ func set_point_in_out(curve: Curve3D, i: int, point: Vector3):
 func get_random_points(path: Path3D) -> Vector3:
 	var follow = PathFollow3D.new()
 	path.add_child(follow)
-	follow.h_offset = randf_range(-32.0, 32.0)
+	follow.h_offset = randf_range(-24.0, 24.0)
 	follow.progress_ratio = randf_range(0, 1.0)
 	var position = follow.position
 	path.remove_child(follow)
