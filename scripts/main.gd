@@ -13,6 +13,7 @@ var karts: Array[Kart] = []
 var zones: Array[Zone] = []
 var minimap: MiniMap = null
 
+@export var ground_mesh: MeshInstance3D = null
 @export var path3D: Path3D = null
 
 func _ready() -> void:
@@ -22,9 +23,9 @@ func _ready() -> void:
 	camera.rotation_degrees.x = -90
 	camera.fov = 30
 
-	var ground = Graphic.create_ground_mesh()
-	add_child(ground)
-	ground.position.y = -0.01
+	# var ground = Graphic.create_ground_mesh()
+	# add_child(ground)
+	# ground.position.y = -0.01
 
 	var path = Path3D.new()
 	add_child(path)
@@ -39,8 +40,13 @@ func _ready() -> void:
 		Vector3(0, 0, 500),
 	]
 
+	if ground_mesh:
+		ground_mesh.position.y = -0.1
+
 	if path3D:
 		for i in range(path3D.curve.point_count):
+			var p = path3D.curve.get_point_position(i)
+			p.y = 0
 			path.curve.add_point(path3D.curve.get_point_position(i))
 		path.curve.add_point(path3D.curve.get_point_position(0))
 

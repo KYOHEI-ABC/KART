@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://btj7e6l14mn80"]
 
 [ext_resource type="Script" uid="uid://dboxug4g43yjg" path="res://scripts/main.gd" id="1_ig7tw"]
-[ext_resource type="Texture2D" uid="uid://btxbnadidqomv" path="res://assets/MarioCircuit3.png" id="2_0xm2m"]
+[ext_resource type="Texture2D" uid="uid://7met6gabenp4" path="res://assets/MarioCircuit1.png" id="2_0xm2m"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ig7tw"]
 size = Vector2(1024, 1024)
@@ -10,9 +10,16 @@ size = Vector2(1024, 1024)
 albedo_texture = ExtResource("2_0xm2m")
 
 [sub_resource type="Curve3D" id="Curve3D_0xm2m"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 425, 0, 60),
+"tilts": PackedFloat32Array(0)
+}
+point_count = 1
 
-[node name="node" type="Node" unique_id=2122252539]
+[node name="node" type="Node" unique_id=2122252539 node_paths=PackedStringArray("ground_mesh", "path3D")]
 script = ExtResource("1_ig7tw")
+ground_mesh = NodePath("MeshInstance3D")
+path3D = NodePath("Path3D")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1334178783]
 mesh = SubResource("PlaneMesh_ig7tw")

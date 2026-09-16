@@ -119,7 +119,7 @@ static func create_circle_mesh(radius: float, color: Color) -> MeshInstance3D:
 
 	mesh.mesh.top_radius = radius
 	mesh.mesh.bottom_radius = radius
-	mesh.mesh.height = 0.1
+	mesh.mesh.height = 0.2
 	mesh.mesh.radial_segments = 12
 	mesh.mesh.cap_bottom = false
 
