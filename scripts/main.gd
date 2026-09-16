@@ -61,10 +61,10 @@ func _ready() -> void:
 		set_point_in_out(path.curve, 4, Vector3(-p, 0, -p))
 		set_point_in_out(path.curve, 5, Vector3(-p, 0, p))
 
-	path.curve.bake_interval = path.curve.get_baked_length() * 0.03
+	path.curve.bake_interval = path.curve.get_baked_length() * 0.01
 	add_child(Graphic.create_road_mesh(path.curve))
 
-	for i in range(0, 6):
+	for i in range(0, 8):
 		karts.append(Kart.new(i, path))
 		add_child(karts[-1])
 

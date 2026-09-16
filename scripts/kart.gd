@@ -52,6 +52,14 @@ func _init(i: int, path: Path3D):
 			character_model.scale = Vector3(2.5, 2.5, 2.5)
 			character_model.position.y = -2.2
 			Graphic.set_material_color(model, Color.from_hsv(60 / 360.0, 1, 1))
+		6:
+			character_model.scale = Vector3(0.06, 0.06, 0.06)
+			character_model.position.y = -4
+			Graphic.set_material_color(model, Color.from_hsv(200 / 360.0, 1, 1))
+		7:
+			character_model.scale = Vector3(0.5, 0.5, 0.5)
+			character_model.position.y = -1
+			Graphic.set_material_color(model, Color.from_hsv(60 / 360.0, 1, 1))
 
 		_:
 			pass

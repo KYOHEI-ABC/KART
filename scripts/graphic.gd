@@ -8,6 +8,8 @@ const MODELS: Array[PackedScene] = [
 	preload("res://assets/Yoshi/yoshi.glb"),
 	preload("res://assets/Toad/toad.glb"),
 	preload("res://assets/Bowser/bowser.glb"),
+	preload("res://assets/Rosalina/rosalina.glb"),
+	preload("res://assets/BowserJr/bowser_jr.glb"),
 ]
 
 static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
