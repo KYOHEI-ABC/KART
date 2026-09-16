@@ -11,6 +11,7 @@ var camera: Camera3D
 
 var karts: Array[Kart] = []
 var zones: Array[Zone] = []
+var minimap: MiniMap = null
 
 @export var path2D: Path2D = null
 
@@ -59,10 +60,12 @@ func _ready() -> void:
 	path.curve.bake_interval = path.curve.get_baked_length() * 0.03
 	add_child(Graphic.create_road_mesh(path.curve))
 
-
 	for i in range(0, 6):
 		karts.append(Kart.new(i, path))
 		add_child(karts[-1])
+
+	minimap = MiniMap.new(path, karts)
+	add_child(minimap)
 
 	add_child(Graphic.setup_world_environment())
 
@@ -77,6 +80,7 @@ func _ready() -> void:
 		zones.append(Zone.new(12, 0.9))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
+
 
 func _process(_delta: float) -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
@@ -95,6 +99,8 @@ func _process(_delta: float) -> void:
 
 	for zone in zones:
 		zone.process(karts)
+
+	minimap.process(karts)
 
 	var camera_target_position = karts[0].position + karts[0].velocity.normalized() * -32 + Vector3(0, 16, 0)
 	camera.position = camera.position.lerp(camera_target_position, 0.1)
