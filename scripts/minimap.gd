@@ -2,12 +2,12 @@ class_name MiniMap
 extends CanvasLayer
 
 var kart_markers: Array[Polygon2D] = []
-var map_origin: Vector2 = Vector2(Main.WINDOW.x - 32, 64.0)
+var map_origin: Vector2 = Vector2(Main.WINDOW.x - 24, 64.0)
 var map_scale: float = 0.08
 
 func _init(path: Path3D, karts: Array[Kart]):
 	var course_line := Line2D.new()
-	course_line.width = 128 * map_scale
+	course_line.width = 64 * map_scale
 	add_child(course_line)
 
 	var baked_points := path.curve.get_baked_points()

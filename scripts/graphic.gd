@@ -15,7 +15,7 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
 
-	var road_width: float = 128.0
+	var road_width: float = 64.0
 
 	var baked_points = curve.get_baked_points()
 
@@ -98,7 +98,7 @@ static func set_material_color(mesh: MeshInstance3D, color: Color) -> void:
 static func create_ground_mesh() -> MeshInstance3D:
 	var mesh = MeshInstance3D.new()
 	mesh.mesh = PlaneMesh.new()
-	mesh.mesh.size = Vector2(10000, 10000)
+	mesh.mesh.size = Vector2(1024, 1024)
 	mesh.material_override = StandardMaterial3D.new()
 	mesh.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
 	mesh.material_override.albedo_color = Color(0, 0.3, 0)

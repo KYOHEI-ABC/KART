@@ -115,7 +115,7 @@ func set_point_in_out(curve: Curve3D, i: int, point: Vector3):
 func get_random_points(path: Path3D) -> Vector3:
 	var follow = PathFollow3D.new()
 	path.add_child(follow)
-	follow.h_offset = randf_range(-64.0, 64.0)
+	follow.h_offset = randf_range(-32.0, 32.0)
 	follow.progress_ratio = randf_range(0, 1.0)
 	var position = follow.position
 	path.remove_child(follow)

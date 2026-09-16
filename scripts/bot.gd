@@ -10,12 +10,13 @@ func _init(kart: Kart):
 	follower = PathFollow3D.new()
 	kart.path.add_child(follower)
 	follower.loop = true
-	follower.h_offset = randf_range(-3, 3)
+	# follower.h_offset = randf_range(-3, 3)
 	follower.progress_ratio = 0.03
 	kart.position = follower.position
 	# follower.progress_ratio = 0.03
 
 	target_distance = randf_range(0.03, 0.1)
+	target_distance = 0.08
 
 func process(karts: Array[Kart]) -> void:
 	follower.progress = kart.path.curve.get_closest_offset(kart.position) + kart.path.curve.get_baked_length() * target_distance
