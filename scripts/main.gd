@@ -89,9 +89,9 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		if get_viewport().get_mouse_position().x < WINDOW.x / 2.0:
-			karts[0].turn(true)
+			karts[0].turn(0.5)
 		else:
-			karts[0].turn(false)
+			karts[0].turn(-0.5)
 	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_SHIFT):
 		karts[0].turn(0.5)
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_ENTER):

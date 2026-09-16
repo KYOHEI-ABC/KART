@@ -27,10 +27,10 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 		var dir = (next_pt - prev_pt).normalized()
 		var side = dir.cross(Vector3.UP).normalized()
 
-		st.set_color(Color.from_hsv(0, 0, randf_range(0.2, 0.4)))
+		st.set_color(Color.from_hsv(0, 0, randf_range(0.4, 0.7)))
 		st.add_vertex(baked_points[i] - side * road_width * 0.5)
 
-		st.set_color(Color.from_hsv(0, 0, randf_range(0.2, 0.4)))
+		st.set_color(Color.from_hsv(0, 0, randf_range(0.3, 0.7)))
 		st.add_vertex(baked_points[i] + side * road_width * 0.5)
 
 	mesh_instance_3d.mesh = st.commit()
