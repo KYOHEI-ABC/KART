@@ -12,6 +12,7 @@ var camera: Camera3D
 var karts: Array[Kart] = []
 var zones: Array[Zone] = []
 var minimap: MiniMap = null
+var rank: Rank = null
 
 @export var ground_mesh: MeshInstance3D = null
 @export var path3D: Path3D = null
@@ -68,6 +69,9 @@ func _ready() -> void:
 		karts.append(Kart.new(i, path))
 		add_child(karts[-1])
 
+	rank = Rank.new(karts)
+	add_child(rank)
+
 	minimap = MiniMap.new(path, karts)
 	add_child(minimap)
 
@@ -104,13 +108,13 @@ func _process(_delta: float) -> void:
 	for zone in zones:
 		zone.process(karts)
 
+	rank.process()
 	minimap.process(karts)
 
 	var camera_target_position = karts[0].position + karts[0].velocity.normalized() * -32 + Vector3(0, 16, 0)
 	camera.position = camera.position.lerp(camera_target_position, 0.1)
 	# camera.position = camera_target_position
 	camera.look_at(karts[0].position + Vector3(0, 8, 0), Vector3.UP)
-
 
 func set_point_in_out(curve: Curve3D, i: int, point: Vector3):
 	curve.set_point_in(i, point)
