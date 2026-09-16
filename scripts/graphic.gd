@@ -101,7 +101,7 @@ static func create_ground_mesh() -> MeshInstance3D:
 	mesh.mesh.size = Vector2(1024, 1024)
 	mesh.material_override = StandardMaterial3D.new()
 	mesh.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
-	mesh.material_override.albedo_color = Color(0, 0.3, 0)
+	mesh.material_override.albedo_texture = load("res://assets/MarioCircuit3.png")
 	return mesh
 
 static func create_box_mesh(color: Color) -> MeshInstance3D:

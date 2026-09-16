@@ -13,7 +13,7 @@ var karts: Array[Kart] = []
 var zones: Array[Zone] = []
 var minimap: MiniMap = null
 
-@export var path2D: Path2D = null
+@export var path3D: Path3D = null
 
 func _ready() -> void:
 	camera = Camera3D.new()
@@ -39,12 +39,10 @@ func _ready() -> void:
 		Vector3(0, 0, 500),
 	]
 
-	if path2D:
-		for i in range(path2D.curve.point_count):
-			var p = path2D.curve.get_point_position(i)
-			path.curve.add_point(Vector3(p.x, 0, p.y))
-		var p = path2D.curve.get_point_position(0)
-		path.curve.add_point(Vector3(p.x, 0, p.y))
+	if path3D:
+		for i in range(path3D.curve.point_count):
+			path.curve.add_point(path3D.curve.get_point_position(i))
+		path.curve.add_point(path3D.curve.get_point_position(0))
 
 	else:
 		for course_point in course_points:
