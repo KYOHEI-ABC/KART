@@ -38,7 +38,7 @@ func _init(i: int, path: Path3D):
 			character_model.position.y = -1.8
 		1:
 			color = Color.from_hsv(100 / 360.0, 0.8, 1)
-			character_model.scale = Vector3(18, 18, 18)
+			character_model.scale = Vector3(0.05, 0.05, 0.05)
 			character_model.position.y = -1.6
 		2:
 			color = Color.from_hsv(330 / 360.0, 0.8, 1)
