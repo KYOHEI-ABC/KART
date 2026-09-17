@@ -22,7 +22,7 @@ func _init(i: int, path: Path3D):
 	if not index == 0:
 		bot = Bot.new(self)
 
-	model = Graphic.create_box_mesh(Color.from_hsv(index / 8.0, 1, 0.5))
+	model = Node3D.new()
 	add_child(model)
 
 	var kart_model = Graphic.KART_MODEL.instantiate()
@@ -117,6 +117,8 @@ func check_course_out() -> void:
 			velocity = velocity.lerp(Vector3.ZERO, 0.1)
 		else:
 			velocity = velocity.lerp(Vector3.ZERO, 0.03)
-		Graphic.set_material_color_v(model, 0.5)
+		var c = color
+		c.v *= 0.25
+		Graphic.set_albedo_color(model.get_child(0).get_child(1), c)
 	else:
-		Graphic.set_material_color_v(model, 1)
+		Graphic.set_albedo_color(model.get_child(0).get_child(1), color)
