@@ -1,5 +1,6 @@
 class_name Graphic
 
+const KART_MODEL: PackedScene = preload("res://assets/kart.glb")
 
 const MODELS: Array[PackedScene] = [
 	preload("res://assets/Mario/mario.glb"),
@@ -108,7 +109,7 @@ static func set_albedo_color(mesh: MeshInstance3D, color: Color) -> void:
 	mesh.set_surface_override_material(0, mat)
 
 
-static func set_material_color_v(mesh: MeshInstance3D, v: float) -> void:
+static func set_material_color_v(mesh: Node3D, v: float) -> void:
 	var mat = mesh.material_override as StandardMaterial3D
 	mat.albedo_color.v = v
 
