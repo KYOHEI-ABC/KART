@@ -77,6 +77,14 @@ func _ready() -> void:
 	minimap = MiniMap.new(path, karts)
 	add_child(minimap)
 
+	var retry_button = Button.new()
+	retry_button.text = "Retry"
+	retry_button.position = Vector2(8, 8)
+	retry_button.size = Vector2(80, 40)
+	retry_button.add_theme_font_size_override("font_size", 16)
+	retry_button.pressed.connect(get_tree().reload_current_scene)
+	add_child(retry_button)
+
 	add_child(Graphic.setup_world_environment())
 
 	add_child(Graphic.setup_directional_light())
@@ -102,6 +110,10 @@ func _ready() -> void:
 	add_child(countdown_label)
 	start_countdown()
 
+	rank.process()
+	minimap.process(karts)
+
+
 	camera.position = karts[0].position + karts[0].transform.basis.z * 32 + Vector3(0, 16, 0)
 	camera.look_at(karts[0].position + Vector3(0, 8, 0), Vector3.UP)
 
@@ -112,7 +124,6 @@ func start_countdown() -> void:
 	await get_tree().create_timer(0.8).timeout
 	countdown_label.hide()
 	race_started = true
-
 
 func _process(_delta: float) -> void:
 	if not race_started:
