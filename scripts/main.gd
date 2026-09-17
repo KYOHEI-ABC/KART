@@ -67,6 +67,7 @@ func _ready() -> void:
 
 	path.curve.bake_interval = path.curve.get_baked_length() * 0.01
 	add_child(Graphic.create_road_mesh(path.curve))
+	add_child(Graphic.create_start_line(path.curve))
 
 	for i in range(0, 8):
 		karts.append(Kart.new(i, path))
@@ -90,12 +91,12 @@ func _ready() -> void:
 
 	add_child(Graphic.setup_directional_light())
 
-	for i in range(3):
+	for i in range(8):
 		zones.append(Zone.new(8, 1.1))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
 
-	for i in range(3):
+	for i in range(8):
 		zones.append(Zone.new(8, 0.9))
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)

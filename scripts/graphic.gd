@@ -42,6 +42,25 @@ static func create_road_mesh(curve: Curve3D) -> MeshInstance3D:
 
 	return mesh_instance_3d
 
+static func create_start_line(curve: Curve3D) -> MeshInstance3D:
+	var baked_points = curve.get_baked_points()
+
+	var start_point = baked_points[0]
+	var tangent = (baked_points[1] - start_point).normalized()
+	var sideways = tangent.cross(Vector3.UP).normalized()
+
+	var mesh = MeshInstance3D.new()
+	mesh.mesh = BoxMesh.new()
+	mesh.mesh.size = Vector3(96.0, 0.2, 6.0)
+
+	mesh.material_override = StandardMaterial3D.new()
+	mesh.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mesh.material_override.albedo_color = Color(1, 1, 1)
+	mesh.position = start_point + Vector3(0, 0.15, 0)
+	mesh.basis = Basis(sideways, Vector3.UP, tangent)
+
+	return mesh
+
 
 static func setup_world_environment() -> WorldEnvironment:
 	var wE = WorldEnvironment.new()
