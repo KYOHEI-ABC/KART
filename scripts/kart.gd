@@ -36,10 +36,15 @@ func _init(i: int, path: Path3D):
 			color = Color.from_hsv(0, 1, 1)
 			character_model.scale = Vector3(0.05, 0.05, 0.05)
 			character_model.position.y = -1.8
+			character_model.get_child(0).get_child(3).position = Vector3(-28.14, -3.63, -19.06)
+			character_model.get_child(0).get_child(3).rotation_degrees.y = 98.5
+
 		1:
 			color = Color.from_hsv(100 / 360.0, 0.8, 1)
 			character_model.scale = Vector3(0.05, 0.05, 0.05)
-			character_model.position.y = -1.6
+			character_model.position.y = -1.0
+			character_model.get_child(0).get_child(3).position = Vector3(-28.14, -3.63, -19.06)
+			character_model.get_child(0).get_child(3).rotation_degrees.y = 98.5
 		2:
 			color = Color.from_hsv(330 / 360.0, 0.8, 1)
 			character_model.scale = Vector3(5, 5, 5)
@@ -58,7 +63,7 @@ func _init(i: int, path: Path3D):
 		5:
 			color = Color.from_hsv(60 / 360.0, 1, 1)
 			character_model.scale = Vector3(1.8, 1.8, 1.8)
-			character_model.position.y = 0.8
+			character_model.position.y = 1.2
 		6:
 			color = Color.from_hsv(180 / 360.0, 1, 1)
 			character_model.scale = Vector3(0.06, 0.06, 0.06)
