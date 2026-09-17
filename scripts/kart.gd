@@ -32,7 +32,7 @@ func _init(i: int, path: Path3D):
 		1:
 			character_model.scale = Vector3(18, 18, 18)
 			character_model.position.y = -2
-			Graphic.set_material_color(model, Color.from_hsv(140 / 360.0, 1, 1))
+			Graphic.set_material_color(model, Color.from_hsv(100 / 360.0, 0.8, 1))
 		2:
 			character_model.scale = Vector3(5, 5, 5)
 			character_model.position.y = -3.5
@@ -55,11 +55,11 @@ func _init(i: int, path: Path3D):
 		6:
 			character_model.scale = Vector3(0.06, 0.06, 0.06)
 			character_model.position.y = -4
-			Graphic.set_material_color(model, Color.from_hsv(200 / 360.0, 1, 1))
+			Graphic.set_material_color(model, Color.from_hsv(180 / 360.0, 1, 1))
 		7:
 			character_model.scale = Vector3(0.5, 0.5, 0.5)
 			character_model.position.y = -1
-			Graphic.set_material_color(model, Color.from_hsv(60 / 360.0, 1, 1))
+			Graphic.set_material_color(model, Color.from_hsv(60 / 360.0, 0.5, 1))
 
 		_:
 			pass
@@ -111,6 +111,6 @@ func check_course_out() -> void:
 			velocity = velocity.lerp(Vector3.ZERO, 0.1)
 		else:
 			velocity = velocity.lerp(Vector3.ZERO, 0.03)
-		Graphic.set_material_color_v(model, 0.25)
-	else:
 		Graphic.set_material_color_v(model, 0.5)
+	else:
+		Graphic.set_material_color_v(model, 1)

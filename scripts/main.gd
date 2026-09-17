@@ -13,6 +13,8 @@ var karts: Array[Kart] = []
 var zones: Array[Zone] = []
 var minimap: MiniMap = null
 var rank: Rank = null
+var race_started: bool = false
+var countdown_label: Label
 
 @export var ground_mesh: MeshInstance3D = null
 @export var path3D: Path3D = null
@@ -89,8 +91,33 @@ func _ready() -> void:
 		add_child(zones[-1])
 		zones[-1].position = get_random_points(path)
 
+	countdown_label = Label.new()
+	countdown_label.position = Vector2(0, WINDOW.y * 0.35)
+	countdown_label.size = Vector2(WINDOW.x, 100)
+	countdown_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	countdown_label.add_theme_font_size_override("font_size", 72)
+	countdown_label.add_theme_color_override("font_color", Color(1, 0.25, 0.25))
+	# countdown_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	# countdown_label.add_theme_constant_override("outline_size", 12)
+	add_child(countdown_label)
+	start_countdown()
+
+	camera.position = karts[0].position + karts[0].transform.basis.z * 32 + Vector3(0, 16, 0)
+	camera.look_at(karts[0].position + Vector3(0, 8, 0), Vector3.UP)
+
+func start_countdown() -> void:
+	countdown_label.text = "READY"
+	await get_tree().create_timer(1.0).timeout
+	countdown_label.text = "GO"
+	await get_tree().create_timer(0.8).timeout
+	countdown_label.hide()
+	race_started = true
+
 
 func _process(_delta: float) -> void:
+	if not race_started:
+		return
+
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		if get_viewport().get_mouse_position().x < WINDOW.x / 2.0:
 			karts[0].turn(0.5)
@@ -100,7 +127,6 @@ func _process(_delta: float) -> void:
 		karts[0].turn(0.5)
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_ENTER):
 		karts[0].turn(-0.5)
-
 
 	for kart in karts:
 		kart.process(karts)
