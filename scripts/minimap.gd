@@ -18,7 +18,7 @@ func _init(path: Path3D, karts: Array[Kart]):
 	course_line.points = mapped_points
 
 	for kart in karts:
-		var marker := _create_marker(kart.model.material_override.albedo_color)
+		var marker := _create_marker(kart.color)
 		add_child(marker)
 		kart_markers.append(marker)
 

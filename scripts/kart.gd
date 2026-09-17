@@ -11,6 +11,8 @@ var bot: Bot = null
 var model: Node3D
 var model_roll_angle: float = 0.0
 
+var color: Color
+
 func _init(i: int, path: Path3D):
 	self.index = i
 	self.path = path
@@ -23,50 +25,54 @@ func _init(i: int, path: Path3D):
 	model = Graphic.create_box_mesh(Color.from_hsv(index / 8.0, 1, 0.5))
 	add_child(model)
 
+	var kart_model = Graphic.KART_MODEL.instantiate()
+	kart_model.scale = Vector3(8, 8, 8)
+	model.add_child(kart_model)
+
+
 	var character_model = Graphic.MODELS[i].instantiate()
 	match index:
 		0:
+			color = Color.from_hsv(0, 1, 1)
 			character_model.scale = Vector3(0.05, 0.05, 0.05)
 			character_model.position.y = -2.4
-			Graphic.set_material_color(model, Color.from_hsv(0, 1, 1))
 		1:
+			color = Color.from_hsv(100 / 360.0, 0.8, 1)
 			character_model.scale = Vector3(18, 18, 18)
 			character_model.position.y = -2
-			Graphic.set_material_color(model, Color.from_hsv(100 / 360.0, 0.8, 1))
 		2:
+			color = Color.from_hsv(330 / 360.0, 0.8, 1)
 			character_model.scale = Vector3(5, 5, 5)
 			character_model.position.y = -3.5
 			character_model.rotation_degrees = Vector3(90, 0, 0)
-			Graphic.set_material_color(model, Color.from_hsv(330 / 360.0, 0.8, 1))
 		3:
+			color = Color.from_hsv(120 / 360.0, 1, 1)
 			character_model.scale = Vector3(5, 5, 5)
 			character_model.position.y = -3.5
 			character_model.rotation_degrees = Vector3(90, 0, 0)
-			Graphic.set_material_color(model, Color.from_hsv(120 / 360.0, 1, 1))
 		4:
+			color = Color.from_hsv(240 / 360.0, 1, 1)
 			character_model.scale = Vector3(5, 5, 5)
 			character_model.position.y = 0.5
 			character_model.rotation_degrees = Vector3(90, 0, 0)
-			Graphic.set_material_color(model, Color.from_hsv(240 / 360.0, 1, 1))
 		5:
+			color = Color.from_hsv(60 / 360.0, 1, 1)
 			character_model.scale = Vector3(2.5, 2.5, 2.5)
 			character_model.position.y = -2.2
-			Graphic.set_material_color(model, Color.from_hsv(60 / 360.0, 1, 1))
 		6:
+			color = Color.from_hsv(180 / 360.0, 1, 1)
 			character_model.scale = Vector3(0.06, 0.06, 0.06)
 			character_model.position.y = -4
-			Graphic.set_material_color(model, Color.from_hsv(180 / 360.0, 1, 1))
 		7:
+			color = Color.from_hsv(60 / 360.0, 0.5, 1)
 			character_model.scale = Vector3(0.5, 0.5, 0.5)
 			character_model.position.y = -1
-			Graphic.set_material_color(model, Color.from_hsv(60 / 360.0, 0.5, 1))
-
 		_:
 			pass
 
+	Graphic.set_albedo_color(kart_model.get_child(1), color)
 
 	model.add_child(character_model)
-	model.position.y = 2
 	model.rotation_degrees.y = 180
 
 func process(karts: Array[Kart]) -> void:

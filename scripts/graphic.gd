@@ -129,7 +129,7 @@ static func create_ground_mesh() -> MeshInstance3D:
 static func create_box_mesh(color: Color) -> MeshInstance3D:
 	var mesh = MeshInstance3D.new()
 	mesh.mesh = BoxMesh.new()
-	mesh.mesh.size = Vector3(8, 4, 8)
+	mesh.mesh.size = Vector3(0, 0, 0)
 	mesh.material_override = StandardMaterial3D.new()
 	mesh.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
 	mesh.material_override.albedo_color = color
