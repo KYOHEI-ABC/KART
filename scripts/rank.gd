@@ -5,6 +5,7 @@ var karts: Array[Kart]
 var label: Label
 var kart_laps: Array[int] = []
 var previous_kart_offsets: Array[float] = []
+const LAPS_TO_FINISH := 1
 
 func _init(race_karts: Array[Kart]):
 	karts = race_karts
@@ -18,7 +19,7 @@ func _init(race_karts: Array[Kart]):
 	label.add_theme_font_size_override("font_size", 32)
 	label.add_theme_color_override("font_color", Color.from_hsv(50 / 360.0, 1, 1))
 
-func process() -> void:
+func process() -> bool:
 	var course_length = karts[0].path.curve.get_baked_length()
 
 	for kart in karts:
@@ -36,7 +37,9 @@ func process() -> void:
 	for i in range(ranked_karts.size()):
 		if ranked_karts[i].index == 0:
 			label.text = "Rank: %d" % (i + 1)
-			return
+			break
+
+	return kart_laps[0] >= LAPS_TO_FINISH
 
 func _kart_progress(kart: Kart) -> float:
 	var course_length = karts[0].path.curve.get_baked_length()

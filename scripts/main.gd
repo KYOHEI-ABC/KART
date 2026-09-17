@@ -14,6 +14,7 @@ var zones: Array[Zone] = []
 var minimap: MiniMap = null
 var rank: Rank = null
 var race_started: bool = false
+var race_finished: bool = false
 var countdown_label: Label
 
 @export var ground_mesh: MeshInstance3D = null
@@ -145,7 +146,11 @@ func _process(_delta: float) -> void:
 	for zone in zones:
 		zone.process(karts)
 
-	rank.process()
+	if not race_finished and rank.process():
+		race_finished = true
+		countdown_label.text = "GOAL"
+		countdown_label.show()
+
 	minimap.process(karts)
 
 	var camera_target_position = karts[0].position + karts[0].velocity.normalized() * -32 + Vector3(0, 16, 0)
